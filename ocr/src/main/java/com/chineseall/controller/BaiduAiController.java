@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.Map;
 
 /**
  * @author gy1zc3@gmail.com
@@ -20,9 +23,16 @@ public class BaiduAiController {
     private BaiduAiService baiduAiService;
 
     @RequestMapping(value = "api/{id}", method = RequestMethod.GET)
-    public ResponseEntity getInfo(@PathVariable int id) {
-        RetMsg retMsg = new RetMsg();
+    public ResponseEntity getContext(@PathVariable int id) {
+        RetMsg retMsg;
         retMsg = baiduAiService.getContext(id);
+        return ResponseEntity.ok(retMsg);
+    }
+
+    @RequestMapping(value = "api/split", method = RequestMethod.POST)
+    public ResponseEntity getSplitContext(@RequestBody Map map){
+        RetMsg retMsg;
+        retMsg = baiduAiService.getSplitContext(map);
         return ResponseEntity.ok(retMsg);
     }
 }
