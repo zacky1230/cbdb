@@ -1,5 +1,8 @@
 package com.chineseall.util;
 
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 
 /**
@@ -271,6 +274,32 @@ public class FileUtil {
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 转换BufferedImage 数据为byte数组
+     *
+     * @param bImage Image对象
+     * @param format image格式字符串.如"gif","png"
+     * @return byte数组
+     */
+    public static byte[] imageToBytes(BufferedImage bImage, String format) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(bImage, format, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return out.toByteArray();
+    }
+
+    public static String getSuffix(String fileName) {
+        if (StringUtils.isNotBlank(fileName)) {
+            return fileName.split("\\.")[1];
+        } else {
+            return null;
         }
     }
 

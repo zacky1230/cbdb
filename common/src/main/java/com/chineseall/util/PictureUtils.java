@@ -4,9 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -17,41 +24,104 @@ public class PictureUtils {
 
     private static Logger logger = LoggerFactory.getLogger(PictureUtils.class);
 
-    public static Map<String, Object> getImageInfo(String filePath) {
 
-        long startTime = System.currentTimeMillis();
-        Map<String, Object> imageInfoMap = new HashMap<>();
-        InputStream is = null;
+    /**
+     * 使用 BufferedImage 获取图片大小
+     *
+     * @param src
+     */
+    public static Map<String, Object> getImageSizeByBufferedImage(String src) {
+        long beginTime = System.currentTimeMillis();
+        Map<String, Object> imageInfoMap = new HashMap<>(1);
+        File file = new File(src);
+        FileInputStream is = null;
         try {
-            File file = new File(filePath);
             is = new FileInputStream(file);
-            BufferedImage image = ImageIO.read(is);
+        } catch (FileNotFoundException e2) {
+            e2.printStackTrace();
+        }
+        BufferedImage sourceImg;
+        try {
+            sourceImg = ImageIO.read(is);
             imageInfoMap.put("IMAGE_SIZE", file.length());
-            imageInfoMap.put("IMAGE_WIDTH", image.getWidth());
-            imageInfoMap.put("IMAGE_HEIGHT", image.getHeight());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (is != null) {
-                try {
-                    is.close(); // 关闭流
-                } catch (IOException e) {
-                    logger.error("getImageInfo I/O exception " + e.getMessage(), e);
-                }
-            }
+            imageInfoMap.put("IMAGE_WIDTH", sourceImg.getWidth());
+            imageInfoMap.put("IMAGE_HEIGHT", sourceImg.getHeight());
+        } catch (IOException e1) {
+            e1.printStackTrace();
         }
         long endTime = System.currentTimeMillis();
-        logger.info("take time: " + (endTime - startTime));
+        logger.info("使用[BufferedImage]获取图片尺寸耗时：[" + (endTime - beginTime) + "]ms");
         return imageInfoMap;
     }
 
-    public static void main(String[] args) {
-        String filePath = "/Users/zacky/Desktop/2013120803a.png";
-        Map<String, Object> map = getImageInfo(filePath);
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+    /**
+     * 使用ImageReader获取图片尺寸
+     *
+     * @param src 源图片路径
+     */
+    public static Map<String, Object> getImageSizeByImageReader(String src) {
+        long beginTime = System.currentTimeMillis();
+        Map<String, Object> imageInfoMap = new HashMap<>(1);
+        File file = new File(src);
+        try {
+            Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName(file.getName().split("\\.")[1]);
+            ImageReader reader = readers.next();
+            ImageInputStream iis = ImageIO.createImageInputStream(file);
+            reader.setInput(iis, true);
+            imageInfoMap.put("IMAGE_SIZE", file.length());
+            imageInfoMap.put("IMAGE_WIDTH", reader.getWidth(0));
+            imageInfoMap.put("IMAGE_HEIGHT", reader.getHeight(0));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        long endTime = System.currentTimeMillis();
+        logger.info("使用[ImageReader]获取图片尺寸耗时：[" + (endTime - beginTime) + "]ms");
+        return imageInfoMap;
+    }
+
+    /**
+     * 切割图片
+     *
+     * @param src
+     * @param rows
+     * @param cols
+     * @param nums
+     * @return
+     */
+    public static ArrayList<BufferedImage> cutImage(String src, int rows, int cols, int nums, int xIndex, int yIndex) {
+        ArrayList<BufferedImage> list = new ArrayList<>();
+        try {
+            BufferedImage img = ImageIO.read(new File(src));
+            int lw = (img.getWidth() - xIndex) / cols;
+            int lh = (img.getHeight() - yIndex) / rows;
+            for (int i = 0; i < nums; i++) {
+                BufferedImage buffImg = img.getSubimage(xIndex + (i % cols * lw), yIndex + (i / cols * lh), lw, lh);
+                list.add(buffImg);
+            }
+            return list;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        String filePath = "/Users/zacky/Desktop/s0110023_0004.png";
+//        Map<String, Object> imageInfoMap = getImageSizeByBufferedImage(filePath);
+//        getImageSizeByImageReader(filePath);
+//        for (Map.Entry<String, Object> entry : imageInfoMap.entrySet()) {
+//            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+//        }
+
+        ArrayList<BufferedImage> biLists = cutImage(filePath, 1, 12, 12, 25, 0);
+        String fileNameString = "/Users/zacky/Desktop";
+        int number = 0;
+        String format = "jpg";
+        for (BufferedImage bi : biLists) {
+            File file1 = new File(fileNameString + File.separator + number + "." + format);
+            ImageIO.write(bi, format, file1);
+            number++;
         }
     }
 }
