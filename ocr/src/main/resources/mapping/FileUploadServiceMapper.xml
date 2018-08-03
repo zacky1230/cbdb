@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chineseall.dao.FileUploadServiceDao">
+    <insert id="insert" parameterType="com.chineseall.entity.UploadFileInfo">
+        INSERT INTO ocr_upload_file_info (fileName,fileUploadPath,fileSize,fileSaveName) VALUES
+        (#{fileName,jdbcType=VARCHAR},#{fileUploadPath,jdbcType=VARCHAR},#{fileSize,jdbcType=INTEGER},#{fileSaveName,jdbcType=VARCHAR})
+    </insert>
+    <select id="queryById" parameterType="java.lang.Integer" resultType="com.chineseall.entity.UploadFileInfo">
+        SELECT * FROM ocr_upload_file_info WHERE id = #{id,jdbcType=VARCHAR}
+    </select>
+</mapper>
