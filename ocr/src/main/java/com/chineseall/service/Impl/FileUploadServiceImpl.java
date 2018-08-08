@@ -43,7 +43,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         String saveFileName = GenUuid.getUUID32() + "." + suffix;
 
         if (saveFile(file, saveFileName, todayString, fileName)) {
-            return ResultUtil.success("upload success", saveFileName);
+            return ResultUtil.success("upload success", "getPicture/" + saveFileName);
         } else {
             return ResultUtil.success("upload fail");
         }
@@ -76,6 +76,11 @@ public class FileUploadServiceImpl implements FileUploadService {
         } else {
             return ResultUtil.success("some upload success", pathList);
         }
+    }
+
+    @Override
+    public String getRealFilePath(String fileName) {
+        return fileUploadServiceDao.queryByFileSaveName(fileName);
     }
 
     public boolean saveFile(MultipartFile file, String saveFileName, String todayString, String fileName) {

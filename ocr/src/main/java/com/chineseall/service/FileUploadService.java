@@ -14,4 +14,6 @@ public interface FileUploadService {
     RetMsg saveSingleFile(MultipartFile file);
 
     RetMsg saveMultiFile(List<MultipartFile> files);
+
+    String getRealFilePath(String fileName);
 }

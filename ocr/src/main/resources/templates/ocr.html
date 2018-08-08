@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Raphaël · Playground</title>
+    <style>
+        input {
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+<h1>Raphaël 測試</h1>
+<div style="display: inline-block; position: relative; width: 400px;">
+    <img th:src="@{${retMsg.data}}" sizingMethod="scale"
+         style="width: 400px; -ms-interpolation-mode: bicubic; float: left;"
+         id="previmg"/>
+    <div id="canvas" style="position: absolute; top: 0; left: 0;"></div>
+    <div style="clear: both;" id="clear"></div>
+    <!--/*@thymesVar id="data" type=""*/-->
+</div>
+<script src="/js/raphael.min.js"></script>
+<br/>
+<form>
+    线条粗细：<input type="text" value="2" id="strokeWidth"><br/>
+    线条颜色：<input type="text" value="#F00" id="strokeColor"><br/>
+    起始点坐标：<input type="text" value="30" id="left"> / <input type="text" value="0" id="top"><br/>
+    分栏间隔：<input type="text" value="45" id="offset"><br/>
+    总栏数：<input type="text" value="10" id="column"><br/>
+</form>
+</body>
+<script>
+
+    var paper = null;
+
+    function drawLine() {
+        // 创建画布
+        var imgvar = document.getElementById('previmg');
+        // 画布大小
+        var width = imgvar.width, height = imgvar.height;
+        // 起始点坐标、间距、栏数
+        var left = parseInt(document.getElementById('left').value),
+            top = parseInt(document.getElementById('top').value),
+            offset = parseInt(document.getElementById('offset').value);
+        // 线条样式
+        var strokeColor = document.getElementById('strokeColor').value,
+            strokeWidth = parseInt(document.getElementById('strokeWidth').value);
+
+        if (paper) {
+            paper.clear();
+        } else {
+            paper = Raphael('canvas', width, height);
+        }
+
+        // 画坚线
+        var path = "";
+        for (var i = 0, len = (width - left) / offset; i < len; i++) {
+            path += 'M' + (i * offset + left) + ',' + top + 'V' + height;
+        }
+        paper.path(path).attr({
+            'stroke': strokeColor,
+            'stroke-width': strokeWidth
+        });
+    }
+
+    window.onload = function () {
+        drawLine();
+
+        var inputs = document.getElementsByTagName('input');
+        for (var i = 0, len = inputs.length; i < len; i++) {
+            inputs[i].onchange = function () {
+                drawLine();
+            }
+        }
+    }
+
+</script>
+</html>

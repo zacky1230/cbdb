@@ -6,6 +6,9 @@
         (#{fileName,jdbcType=VARCHAR},#{fileUploadPath,jdbcType=VARCHAR},#{fileSize,jdbcType=INTEGER},#{fileSaveName,jdbcType=VARCHAR})
     </insert>
     <select id="queryById" parameterType="java.lang.Integer" resultType="com.chineseall.entity.UploadFileInfo">
-        SELECT * FROM ocr_upload_file_info WHERE id = #{id,jdbcType=VARCHAR}
+        SELECT * FROM ocr_upload_file_info WHERE id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="queryByFileSaveName" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT fileUploadPath FROM ocr_upload_file_info WHERE fileSaveName = #{fileName,jdbcType=VARCHAR}
     </select>
 </mapper>

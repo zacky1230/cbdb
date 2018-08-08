@@ -1,21 +1,28 @@
 package com.chineseall.controller;
 
 import com.chineseall.service.FileUploadService;
-import com.chineseall.util.ResultUtil;
 import com.chineseall.util.RetMsg;
+import com.chineseall.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -31,28 +38,21 @@ public class FileUploadController {
 
     private Logger logger = LoggerFactory.getLogger(FileUploadController.class);
 
-    @RequestMapping(value = "toFilePage", method = RequestMethod.GET)
-    public String toFilePage() {
-        logger.info("show file upload page");
-        return "/file";
-    }
+    private final ResourceLoader resourceLoader;
 
-    @RequestMapping(value = "toMultiFilePage", method = RequestMethod.GET)
-    public String toMultiFilePage() {
-        logger.info("show file upload page");
-        return "/multifile";
+    @Autowired
+    public FileUploadController(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
     }
 
     /**
      * 实现单文件上传
      */
     @RequestMapping("fileUpload")
-    @ResponseBody
-    public ResponseEntity fileUpload(@RequestParam("fileName") MultipartFile file) {
-
+    public String fileUpload(@RequestParam("fileName") MultipartFile file, Model model) {
         RetMsg retMsg = fileUploadService.saveSingleFile(file);
-
-        return ResponseEntity.ok(retMsg);
+        model.addAttribute("retMsg", retMsg);
+        return "ocr";
     }
 
     /**
@@ -68,4 +68,20 @@ public class FileUploadController {
 
         return ResponseEntity.ok(retMsg);
     }
+
+    @RequestMapping("getPicture/{fileName}")
+    public ResponseEntity getPicture(@PathVariable String fileName) throws IOException {
+        if (StringUtils.isEmpty(fileName)) {
+            fileName = "";
+        } else {
+            fileName = fileUploadService.getRealFilePath(fileName);
+        }
+        Path file = Paths.get(fileName);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        return ResponseEntity.ok(resourceLoader.getResource("file:" + file.toString()));
+    }
+
+
 }

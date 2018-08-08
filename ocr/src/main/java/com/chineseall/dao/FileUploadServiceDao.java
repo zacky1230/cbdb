@@ -12,4 +12,6 @@ public interface FileUploadServiceDao {
     Integer insert(UploadFileInfo uploadFileInfo);
 
     UploadFileInfo queryById(int id);
+
+    String queryByFileSaveName(String fileName);
 }
