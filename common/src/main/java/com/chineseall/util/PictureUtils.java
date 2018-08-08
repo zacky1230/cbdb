@@ -85,20 +85,36 @@ public class PictureUtils {
      * @param src
      * @param rows
      * @param cols
-     * @param nums
      * @return
      */
-    public static ArrayList<BufferedImage> cutImage(String src, int rows, int cols, int nums, int xIndex, int yIndex) {
+    public static ArrayList<BufferedImage> cutImage(String src, int rows, int cols, int xIndex, int yIndex,
+                                                    int gapStart, int gapEnd, int rowsRight, int columnRight, int
+                                                            yIndexRigth) {
         ArrayList<BufferedImage> list = new ArrayList<>();
         try {
             BufferedImage img = ImageIO.read(new File(src));
-            int lw = (img.getWidth() - xIndex) / cols;
-            int lh = (img.getHeight() - yIndex) / rows;
-            for (int i = 0; i < nums; i++) {
-                BufferedImage buffImg = img.getSubimage(xIndex + (i % cols * lw), yIndex + (i / cols * lh), lw, lh);
-                list.add(buffImg);
+            if (gapStart == 0 && gapEnd == 0 && columnRight == 0) {
+                return getBufferedImage(list, img, rows, cols, xIndex, yIndex);
+            } else {
+                BufferedImage leftImage = img.getSubimage(xIndex, yIndex, gapStart, img.getHeight() - yIndex);
+                BufferedImage rightImage = img.getSubimage(gapEnd, yIndexRigth, (img.getWidth() - gapEnd), img
+                        .getHeight() - yIndexRigth);
+                /**
+                 * 左边
+                 */
+                {
+                    ImageIO.write(leftImage, "png", new File("/Users/zacky/Desktop/leftImage.png"));
+                    getBufferedImage(list, leftImage, rows, cols, xIndex, yIndex);
+                }
+                /**
+                 * 右边
+                 */
+                {
+                    ImageIO.write(rightImage, "png", new File("/Users/zacky/Desktop/rightImage.png"));
+                    getBufferedImage(list, rightImage, rowsRight, columnRight, 0, yIndexRigth);
+                }
+                return list;
             }
-            return list;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -106,18 +122,25 @@ public class PictureUtils {
     }
 
 
-    public static void main(String[] args) throws IOException {
-        String filePath = "/Users/zacky/Desktop/s0110023_0004.png";
-//        Map<String, Object> imageInfoMap = getImageSizeByBufferedImage(filePath);
-//        getImageSizeByImageReader(filePath);
-//        for (Map.Entry<String, Object> entry : imageInfoMap.entrySet()) {
-//            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-//        }
+    private static ArrayList<BufferedImage> getBufferedImage(ArrayList<BufferedImage> list, BufferedImage img, int
+            rows, int cols, int xIndex, int yIndex) {
+        int lw = (img.getWidth() - xIndex) / cols;
+        int lh = (img.getHeight() - yIndex) / rows;
+        for (int i = 0; i < rows * cols; i++) {
+            BufferedImage buffImg = img.getSubimage(xIndex + (i % cols * lw), yIndex + (i / cols * lh), lw, lh);
+            list.add(buffImg);
+        }
+        return list;
+    }
 
-        ArrayList<BufferedImage> biLists = cutImage(filePath, 1, 12, 12, 25, 0);
+    public static void main(String[] args) throws IOException {
+//        String filePath = "/Users/zacky/Desktop/s0110023_0004.png";
+        String filePath = "/Users/zacky/Desktop/test.png";
+
+        ArrayList<BufferedImage> biLists = cutImage(filePath, 1, 6, 6, 0, 341, 370, 1, 6, 0);
         String fileNameString = "/Users/zacky/Desktop";
         int number = 0;
-        String format = "jpg";
+        String format = "png";
         for (BufferedImage bi : biLists) {
             File file1 = new File(fileNameString + File.separator + number + "." + format);
             ImageIO.write(bi, format, file1);

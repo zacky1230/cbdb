@@ -45,6 +45,8 @@ public class RetMsg<T> {
     }
 
     public void setData(T data) {
+        this.code = 200;
+        this.msg = "ok";
         this.data = data;
     }
 
