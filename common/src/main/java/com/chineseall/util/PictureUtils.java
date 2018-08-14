@@ -6,11 +6,13 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -89,16 +91,26 @@ public class PictureUtils {
      */
     public static ArrayList<BufferedImage> cutImage(String src, int rows, int cols, int xIndex, int yIndex,
                                                     int gapStart, int gapEnd, int rowsRight, int columnRight, int
-                                                            yIndexRigth) {
+                                                            yIndexRigth, int heigth) {
         ArrayList<BufferedImage> list = new ArrayList<>();
+
         try {
             BufferedImage img = ImageIO.read(new File(src));
+            BigDecimal b1 = new BigDecimal(Double.toString(heigth));
+            BigDecimal b2 = new BigDecimal(Double.toString(img.getHeight()));
+            double rate = b1.divide(b2, 2).doubleValue();
+            /**
+             * if picture changed, fixed.
+             */
+            if (rate != 1.0) {
+                img = resizeImage(img, rate * 100 / 100);
+            }
             if (gapStart == 0 && gapEnd == 0 && columnRight == 0) {
                 return getBufferedImage(list, img, rows, cols, xIndex, yIndex);
             } else {
-                BufferedImage leftImage = img.getSubimage(xIndex, yIndex, gapStart, img.getHeight() - yIndex);
-                BufferedImage rightImage = img.getSubimage(gapEnd, yIndexRigth, (img.getWidth() - gapEnd), img
-                        .getHeight() - yIndexRigth);
+                BufferedImage leftImage = img.getSubimage(xIndex, yIndex, gapStart, (img.getHeight() - yIndex));
+                BufferedImage rightImage = img.getSubimage(gapEnd, yIndexRigth, (img.getWidth() - gapEnd), (img
+                        .getHeight() - yIndexRigth));
                 /**
                  * 左边
                  */
@@ -133,11 +145,34 @@ public class PictureUtils {
         return list;
     }
 
+    /**
+     * 对图片进行缩放
+     *
+     * @param originalImage 原始图片
+     * @param times         放大倍数
+     * @return
+     */
+    public static BufferedImage resizeImage(BufferedImage originalImage, double times) {
+        int width = (int) (originalImage.getWidth() * times);
+        int height = (int) (originalImage.getHeight() * times);
+
+        int tType = originalImage.getType();
+        if (0 == tType) {
+            tType = 5;
+        }
+        BufferedImage newImage = new BufferedImage(width, height, tType);
+        Graphics g = newImage.getGraphics();
+        g.drawImage(originalImage, 0, 0, width, height, null);
+        g.dispose();
+
+        return newImage;
+    }
+
     public static void main(String[] args) throws IOException {
 //        String filePath = "/Users/zacky/Desktop/s0110023_0004.png";
         String filePath = "/Users/zacky/Desktop/test.png";
 
-        ArrayList<BufferedImage> biLists = cutImage(filePath, 1, 6, 6, 0, 341, 370, 1, 6, 0);
+        ArrayList<BufferedImage> biLists = cutImage(filePath, 1, 6, 6, 0, 341, 370, 1, 6, 0, 100);
         String fileNameString = "/Users/zacky/Desktop";
         int number = 0;
         String format = "png";

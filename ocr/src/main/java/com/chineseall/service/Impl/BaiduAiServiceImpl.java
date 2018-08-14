@@ -78,21 +78,21 @@ public class BaiduAiServiceImpl implements BaiduAiService {
         RetMsg retMsg = new RetMsg();
         if (map != null) {
             String filePath = (String) map.get("filePath");
-            int xIndex = (int) map.get("xIndex");
-            int yIndex = (int) map.get("yIndex");
+            int xIndex = Integer.parseInt((String) map.get("xIndex"));
+            int yIndex = Integer.parseInt((String) map.get("yIndex"));
             int row = (int) map.get("row");
-            int column = (int) map.get("column");
-            int gapStart = (int) map.get("gapStart");
-            int gapEnd = (int) map.get("gapEnd");
+            int column = Integer.parseInt((String) map.get("column"));
+            int gapStart = Integer.parseInt((String) map.get("gapStart"));
+            int gapEnd = Integer.parseInt((String) map.get("gapEnd"));
             int rowsRight = (int) map.get("rowsRight");
-            int columnRight = (int) map.get("columnRight");
-            int yIndexRigth = (int) map.get("yIndexRigth");
-
+            int columnRight = Integer.parseInt((String) map.get("columnRight"));
+            int yIndexRigth = Integer.parseInt((String) map.get("yIndexRigth"));
+            int height = Integer.parseInt((String) map.get("height"));
 
             File file = new File(filePath);
 
             ArrayList<BufferedImage> bufferedImages = PictureUtils.cutImage(filePath, row, column, xIndex, yIndex,
-                    gapStart, gapEnd, rowsRight, columnRight, yIndexRigth);
+                    gapStart, gapEnd, rowsRight, columnRight, yIndexRigth, height);
             String format = FileUtil.getSuffix(file.getName());
             String accessToken;
             Object accessTokenRedis = redisTemplate.opsForValue().get("ai_ocr_access_token");

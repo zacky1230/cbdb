@@ -1,5 +1,6 @@
 package com.chineseall.controller;
 
+import com.chineseall.service.BaiduAiService;
 import com.chineseall.service.FileUploadService;
 import com.chineseall.util.RetMsg;
 import com.chineseall.util.StringUtils;
@@ -23,7 +24,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author gy1zc3@gmail.com
@@ -35,6 +38,9 @@ public class FileUploadController {
 
     @Autowired
     private FileUploadService fileUploadService;
+
+    @Autowired
+    private BaiduAiService baiduAiService;
 
     private Logger logger = LoggerFactory.getLogger(FileUploadController.class);
 
@@ -49,10 +55,24 @@ public class FileUploadController {
      * 实现单文件上传
      */
     @RequestMapping("fileUpload")
-    public String fileUpload(@RequestParam("fileName") MultipartFile file, Model model) {
+    @ResponseBody
+    public ResponseEntity fileUpload(@RequestParam("fileName") MultipartFile file, HttpServletRequest request, Model model) {
         RetMsg retMsg = fileUploadService.saveSingleFile(file);
-        model.addAttribute("retMsg", retMsg);
-        return "ocr";
+        String filePath = retMsg.getData().toString();
+        Map<String, Object> map = new HashMap();
+        map.put("filePath", filePath);
+        map.put("xIndex", (request.getParameter("left")));
+        map.put("yIndex", (request.getParameter("top")));
+        map.put("row", 1);
+        map.put("column", (request.getParameter("column")));
+        map.put("gapStart", (request.getParameter("gapStart")));
+        map.put("gapEnd", (request.getParameter("gapEnd")));
+        map.put("rowsRight", 1);
+        map.put("columnRight", (request.getParameter("columnRight")));
+        map.put("yIndexRigth", (request.getParameter("gapEndY")));
+        map.put("height", (request.getParameter("height")));
+        retMsg = baiduAiService.getSplitContext(map);
+        return ResponseEntity.ok(retMsg);
     }
 
     /**

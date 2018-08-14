@@ -43,7 +43,8 @@ public class FileUploadServiceImpl implements FileUploadService {
         String saveFileName = GenUuid.getUUID32() + "." + suffix;
 
         if (saveFile(file, saveFileName, todayString, fileName)) {
-            return ResultUtil.success("upload success", "getPicture/" + saveFileName);
+            String filePath = fileUploadPath + File.separator + todayString + File.separator + saveFileName;
+            return ResultUtil.success("upload success", filePath);
         } else {
             return ResultUtil.success("upload fail");
         }
