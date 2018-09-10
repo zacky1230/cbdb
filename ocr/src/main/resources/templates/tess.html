@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>
+        Tess Box Editor
+    </title>
+</head>
+<style>
+    #canvas1 {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        border: thin solid #aaaaaa;
+    }
+
+    #canvas2 {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        border: thin solid #aaaaaa;
+    }
+
+    #imgShow {
+        float: left;
+        width: 1000px;
+        border: 1px solid;
+    }
+
+    #boxInfo {
+        margin-right: 3%;
+        float: right;
+        width: 350px;
+        height: 600px;
+        border: 1px solid;
+        overflow: auto;
+    }
+
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        table-layout: fixed;
+        width: 330px;
+        margin-left: 10px;
+    }
+
+    table, td, th {
+        border: 1px solid black;
+    }
+
+    th {
+        height: 30px;
+    }
+
+    input {
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        border: 0px;
+        outline: none;
+        cursor: pointer;
+    }
+</style>
+<body onload="pageLoad()" style="margin:0px;">
+<div>
+    <div id="imgShow">
+        <canvas id="canvas1" width="1000" height="600"></canvas>
+        <canvas id="canvas2" width="1000" height="600"></canvas>
+    </div>
+    <div id="boxInfo">
+        <button type="button" name="button" style="margin:20px 0 20px 0;position: relative;left: 20%;"
+                onclick="addRow()">
+            AddRow
+        </button>
+        <button type="button" name="button" style="margin:20px 0 20px 0;position: relative;left: 20%;"
+                onclick="delRow()">
+            DelLastRow
+        </button>
+        <button id="submit" type="submit" style="position: relative;left:20%;">submit</button>
+
+        <form class="" method="post">
+            <table id="boxTable">
+                <tr>
+                    <td>value</td>
+                    <td>x</td>
+                    <td>y</td>
+                    <td>width</td>
+                    <td>height</td>
+                    <td>operate</td>
+                </tr>
+            </table>
+
+        </form>
+    </div>
+</div>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+
+    var canvas1 = document.getElementById("canvas1");
+    var canvas2 = document.getElementById("canvas2");
+    var context1 = canvas1.getContext("2d");
+    var context2 = canvas2.getContext("2d");
+    var trCnt = 0;
+    var boxData = [];
+
+    //load picture in canvas
+    var imgObj = new Image();
+    imgObj.src = "/image/test2.tiff";
+    imgObj.onload = function () {
+        context1.drawImage(this, 0, 0);
+    }
+
+    //load page
+    function pageLoad() {
+        var tickSize = 20;
+
+        var tickCntW = Math.ceil(canvas1.width / tickSize);
+        var tickCntH = Math.ceil(canvas1.height / tickSize);
+
+        context1.moveTo(canvas1.width, canvas1.height);
+        context1.lineTo(0, canvas1.height);
+        context1.lineWidth = 2;
+        context1.strokeStyle = "#000";
+        context1.stroke();
+        for (var i = 0; i <= tickCntW; i++) {
+            context1.moveTo(tickSize * i, canvas1.height);
+            context1.lineTo(tickSize * i, canvas1.height - 10);
+            context1.textAlign = 'center';
+            context1.fillText(tickSize * i, tickSize * i, canvas1.height - 10)
+        }
+        context1.strokeStyle = "#f00";
+        context1.stroke();
+        context1.moveTo(canvas1.width, canvas1.height);
+        context1.lineTo(canvas1.width, 0);
+        context1.lineWidth = 2;
+        context1.strokeStyle = "#000";
+        context1.stroke();
+        for (var i = 0; i <= tickCntH; i++) {
+            context1.moveTo(canvas1.width, tickSize * i);
+            context1.lineTo(canvas1.width - 5, tickSize * i);
+            context1.textAlign = 'center';
+            context1.fillText(tickSize * i, canvas1.width - 15, tickSize * i)
+        }
+        context1.strokeStyle = "#f00";
+        context1.stroke();
+    }
+
+
+    function addRow() {
+        trCnt++;
+        $('#boxTable > tbody').append('<tr class="tr' + trCnt + '"><td><input class="char' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="x' + trCnt + '" type="text" onchange="drawRect()"></td><td><input class="y' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="w' + trCnt + '" type="text" onchange="drawRect()"></td><td><input class="h' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td>' + trCnt + '</td></tr>');
+    }
+
+    function delRow() {
+        if ($("#boxTable tr").length > 1) {
+            trCnt--;
+            $("#boxTable tr:last").remove();
+        }
+    }
+
+
+    function drawRect() {
+        getDataInfo();
+        var size = boxData.length;
+        context2.clearRect(0, 0, 1000, 600);
+        for (var i = 0; i < size; i++) {
+            var data = boxData[i];
+            if (data.x > 0 && data.y > 0 && data.w > 0 && data.h > 0) {
+                context2.strokeRect(data.x, data.y, data.w, data.h);
+            }
+        }
+    }
+
+    function getDataInfo() {
+        boxData = [];
+        for (i = 1; i <= trCnt; i++) {
+            var data = {};
+            data.char = $(".char" + i).val();
+            data.x = $(".x" + i).val();
+            data.y = $(".y" + i).val();
+            data.w = $(".w" + i).val();
+            data.h = $(".h" + i).val();
+            boxData.push(data);
+        }
+
+    }
+
+    $("#submit").click(function () {
+        $.ajax({
+            url: "/ocr/getBoxData",
+            contentType: 'application/json',
+            type: "POST",
+            cache: false,
+            data: JSON.stringify(boxData),
+            processData: false,
+            async: false,
+            success: function (result) {
+                console.log(result);
+                $("#result").val(result.data)
+            }
+        })
+    });
+
+</script>
+
+</body>
+</html>
