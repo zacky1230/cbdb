@@ -1,7 +1,10 @@
 package com.chineseall.util;
 
 
+import org.xml.sax.SAXException;
+
 import javax.imageio.ImageIO;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
@@ -295,6 +298,12 @@ public class FileUtil {
         return out.toByteArray();
     }
 
+    /**
+     * 获取文件的前缀
+     *
+     * @param fileName
+     * @return
+     */
     public static String getSuffix(String fileName) {
         if (StringUtils.isNotBlank(fileName)) {
             return fileName.split("\\.")[1];
@@ -303,31 +312,89 @@ public class FileUtil {
         }
     }
 
-    public static void main(String[] args) {
-        String path = FileUtil.class.getResource("").getFile();
-        String fileName = path + "/temp.txt";
-        FileUtil.readFileByByte(fileName);
-        System.out.println("");
-        FileUtil.readFileByBytes(fileName);
-        System.out.println("");
-        FileUtil.readFileByChar(fileName);
-        System.out.println("");
-        FileUtil.readFileByChars(fileName);
-        System.out.println("");
-        FileUtil.readFileByLines(fileName);
-        System.out.println("");
-        FileUtil.readFileByRandomAccess(fileName);
-        System.out.println("");
-        String content = "\nnew append RandomAccessFile!";
-        FileUtil.appendMethodByRandomAccessFile(fileName, content);
-        FileUtil.appendMethodByRandomAccessFile(fileName,
-                "\nappend end RandomAccessFile");
-        FileUtil.readFileByLines(fileName);
-        System.out.println("");
-        FileUtil.appendMethodByFileWriter(fileName, content);
-        FileUtil.appendMethodByFileWriter(fileName,
-                "\nappend end appendMethodByFileWriter");
-        FileUtil.readFileByLines(fileName);
+
+    /**
+     * 转化 TIFF 文件
+     *
+     * @param inputPath
+     * @param outputPath
+     * @throws IOException
+     */
+    public static void convertToTiff(String inputPath, String outputPath) throws IOException {
+        File file = new File(inputPath);
+        BufferedImage img = ImageIO.read(new FileInputStream(file));
+        File myNewTIFF_File = new File(outputPath);
+        ImageIO.write(img, "TIF", myNewTIFF_File);
+    }
+
+    /**
+     * 获取文本内容
+     *
+     * @param fileName
+     * @return
+     */
+    public static String getTxtFileContent(String fileName) {
+        File file = new File(fileName);
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String tempString = null;
+            do {
+                tempString = reader.readLine();
+                sb.append(tempString);
+                sb.append("\n");
+                if (tempString != null && tempString.length() == 0) {
+                    sb.append("\n");
+                }
+            } while (tempString != null);
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String test(String fileName) throws ParserConfigurationException, IOException, SAXException {
+        byte[] bytes = readFileByBytes(fileName);
+        return new String(bytes);
+    }
+
+    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
+//        String path = FileUtil.class.getResource("").getFile();
+//        String fileName = path + "/temp.txt";
+//        FileUtil.readFileByByte(fileName);
+//        System.out.println("");
+//        FileUtil.readFileByBytes(fileName);
+//        System.out.println("");
+//        FileUtil.readFileByChar(fileName);
+//        System.out.println("");
+//        FileUtil.readFileByChars(fileName);
+//        System.out.println("");
+//        FileUtil.readFileByLines(fileName);
+//        System.out.println("");
+//        FileUtil.readFileByRandomAccess(fileName);
+//        System.out.println("");
+//        String content = "\nnew append RandomAccessFile!";
+//        FileUtil.appendMethodByRandomAccessFile(fileName, content);
+//        FileUtil.appendMethodByRandomAccessFile(fileName,
+//                "\nappend end RandomAccessFile");
+//        FileUtil.readFileByLines(fileName);
+//        System.out.println("");
+//        FileUtil.appendMethodByFileWriter(fileName, content);
+//        FileUtil.appendMethodByFileWriter(fileName,
+//                "\nappend end appendMethodByFileWriter");
+//        FileUtil.readFileByLines(fileName);
+        String inputPath = "/Users/zacky/Desktop/tess/test.png";
+        String ouputPath = "/Users/zacky/Desktop/tess/test.tif";
+        FileUtil.convertToTiff(inputPath, ouputPath);
     }
 
 }

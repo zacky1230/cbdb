@@ -32,4 +32,10 @@ public class PageController {
         logger.info("show ocr page");
         return "/ocr";
     }
+
+    @RequestMapping(value = "toTessPage", method = RequestMethod.GET)
+    public String toTessPage() {
+        logger.info("show tess page");
+        return "/tess";
+    }
 }
