@@ -38,4 +38,10 @@ public class PageController {
         logger.info("show tess page");
         return "/tess";
     }
+
+    @RequestMapping(value = "toTessFilePage", method = RequestMethod.GET)
+    public String toTessFilePage() {
+        logger.info("show tessFile page");
+        return "/tessFile";
+    }
 }

@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -89,6 +91,30 @@ public class FileUploadController {
         return ResponseEntity.ok(retMsg);
     }
 
+    /**
+     * 实现上传多文件
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping("mutilTessFile")
+    public String mutilTessFile(HttpServletRequest request, Model model) {
+        List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("fileName");
+        CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
+        MultipartHttpServletRequest multipartRequest = commonsMultipartResolver.resolveMultipart(request);
+        String lang = multipartRequest.getParameter("lang");
+        String fontFamily = multipartRequest.getParameter("fontFamily");
+        String timeStamp = fileUploadService.saveMutilTessFile(files, lang, fontFamily);
+        model.addAttribute("timeStamp", timeStamp);
+        return "tess";
+    }
+
+    /**
+     * 图片预览
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
     @RequestMapping("getPicture/{fileName}")
     public ResponseEntity getPicture(@PathVariable String fileName) throws IOException {
         if (StringUtils.isEmpty(fileName)) {
@@ -102,6 +128,5 @@ public class FileUploadController {
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         return ResponseEntity.ok(resourceLoader.getResource("file:" + file.toString()));
     }
-
 
 }

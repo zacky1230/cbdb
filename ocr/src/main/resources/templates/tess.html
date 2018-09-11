@@ -91,9 +91,15 @@
 
         </form>
     </div>
+    <span th:text="${timeStamp}"></span>
 </div>
 <script src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript">
+
+    /*$(document).ready(function () {
+       console.log("start");
+       alert(${timeStamp});
+    });*/
 
     var canvas1 = document.getElementById("canvas1");
     var canvas2 = document.getElementById("canvas2");
@@ -111,6 +117,8 @@
 
     //load page
     function pageLoad() {
+        console.log("start");
+
         var tickSize = 20;
 
         var tickCntW = Math.ceil(canvas1.width / tickSize);

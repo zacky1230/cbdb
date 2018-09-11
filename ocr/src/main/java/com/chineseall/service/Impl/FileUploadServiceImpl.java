@@ -2,6 +2,7 @@ package com.chineseall.service.Impl;
 
 import com.chineseall.dao.FileUploadServiceDao;
 import com.chineseall.entity.UploadFileInfo;
+import com.chineseall.entity.UploadPngTifInfo;
 import com.chineseall.service.FileUploadService;
 import com.chineseall.util.GenUuid;
 import com.chineseall.util.ResultUtil;
@@ -83,6 +84,67 @@ public class FileUploadServiceImpl implements FileUploadService {
     public String getRealFilePath(String fileName) {
         return fileUploadServiceDao.queryByFileSaveName(fileName);
     }
+
+    @Override
+    public String saveMutilTessFile(List<MultipartFile> files, String lang, String fontFamily) {
+        if (files.isEmpty()) {
+            return null;
+        }
+        long currentTime = TimeUtil.getCurrentTimeStamp();
+        int count = 0;
+
+        for (MultipartFile file : files) {
+            String fileName = file.getOriginalFilename();
+            String saveFileName = lang + "." + fontFamily + "." + currentTime;
+            if (fileName.contains("png")) {
+                saveFileName = saveFileName + ".png";
+            } else {
+                saveFileName = saveFileName + ".tif";
+            }
+
+            if (saveFile(file, saveFileName, currentTime)) {
+                count++;
+            }
+        }
+        if (count == files.size()) {
+            String saveFileName = lang + "." + fontFamily + "." + currentTime;
+            UploadPngTifInfo info = new UploadPngTifInfo();
+            info.setUploadDirectory(fileUploadPath + File.separator + currentTime);
+            info.setFontFamily(fontFamily);
+            info.setLang(lang);
+            info.setTimeStamp(currentTime);
+            info.setPngFileName(saveFileName + ".png");
+            info.setTifFileName(saveFileName + ".tif");
+            fileUploadServiceDao.add(info);
+        }
+        return String.valueOf(currentTime);
+    }
+
+    private boolean saveFile(MultipartFile file, String saveFileName, long currentTime) {
+        if (file.isEmpty()) {
+            return false;
+        }
+        /**int size = (int) file.getSize();**/
+
+        File dest = new File(fileUploadPath + File.separator + currentTime + File.separator + saveFileName);
+
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdir();
+        }
+
+        try {
+            file.transferTo(dest);
+            return true;
+
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     public boolean saveFile(MultipartFile file, String saveFileName, String todayString, String fileName) {
         if (file.isEmpty()) {

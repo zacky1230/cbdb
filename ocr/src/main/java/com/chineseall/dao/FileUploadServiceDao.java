@@ -1,6 +1,7 @@
 package com.chineseall.dao;
 
 import com.chineseall.entity.UploadFileInfo;
+import com.chineseall.entity.UploadPngTifInfo;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -14,4 +15,6 @@ public interface FileUploadServiceDao {
     UploadFileInfo queryById(int id);
 
     String queryByFileSaveName(String fileName);
+
+    Integer add(UploadPngTifInfo info);
 }

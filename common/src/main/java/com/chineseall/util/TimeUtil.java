@@ -19,7 +19,13 @@ public class TimeUtil {
         return formatter.format(date);
     }
 
+    public static long getCurrentTimeStamp(){
+        Date date = new Date();
+        return date.getTime();
+    }
+
     public static void main(String[] args) {
         System.out.println(getTodayToString());
+        System.out.println(getCurrentTimeStamp());
     }
 }

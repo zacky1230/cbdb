@@ -367,6 +367,30 @@ public class FileUtil {
         return new String(bytes);
     }
 
+    public static void writeToFile(String out, String[] fontFamily, int lineSize) {
+        File file = new File(out);
+        FileOutputStream fos;
+        BufferedWriter bw = null;
+        try {
+            fos = new FileOutputStream(file);
+            bw = new BufferedWriter(new OutputStreamWriter(fos));
+
+            for (int i = 0; i < lineSize; i++) {
+                bw.write(fontFamily[i] + " 0 0 0 0 0\n");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                bw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
 //        String path = FileUtil.class.getResource("").getFile();
 //        String fileName = path + "/temp.txt";
@@ -392,9 +416,10 @@ public class FileUtil {
 //        FileUtil.appendMethodByFileWriter(fileName,
 //                "\nappend end appendMethodByFileWriter");
 //        FileUtil.readFileByLines(fileName);
-        String inputPath = "/Users/zacky/Desktop/tess/test.png";
+        /*String inputPath = "/Users/zacky/Desktop/tess/test.png";
         String ouputPath = "/Users/zacky/Desktop/tess/test.tif";
-        FileUtil.convertToTiff(inputPath, ouputPath);
+        FileUtil.convertToTiff(inputPath, ouputPath);*/
+        FileUtil.writeToFile("/Users/zacky/Desktop/tess/fontf",new String[]{"Sim","Sim"},2);
     }
 
 }

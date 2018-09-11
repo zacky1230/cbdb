@@ -28,5 +28,4 @@ public class TesseractController {
         return ResponseEntity.ok(100);
     }
 
-
 }

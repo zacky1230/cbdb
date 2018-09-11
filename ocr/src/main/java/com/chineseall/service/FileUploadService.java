@@ -16,4 +16,6 @@ public interface FileUploadService {
     RetMsg saveMultiFile(List<MultipartFile> files);
 
     String getRealFilePath(String fileName);
+
+    String saveMutilTessFile(List<MultipartFile> files, String lang, String fontFamily);
 }
