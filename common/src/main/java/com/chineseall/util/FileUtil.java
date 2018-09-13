@@ -1,12 +1,15 @@
 package com.chineseall.util;
 
 
-import org.xml.sax.SAXException;
-
 import javax.imageio.ImageIO;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static com.alibaba.fastjson.util.IOUtils.close;
 
 /**
  * @author gy1zc3@gmail.com
@@ -362,11 +365,6 @@ public class FileUtil {
         return sb.toString();
     }
 
-    public static String test(String fileName) throws ParserConfigurationException, IOException, SAXException {
-        byte[] bytes = readFileByBytes(fileName);
-        return new String(bytes);
-    }
-
     public static void writeToFile(String out, String[] fontFamily, int lineSize) {
         File file = new File(out);
         FileOutputStream fos;
@@ -391,7 +389,105 @@ public class FileUtil {
         }
     }
 
-    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
+    /**
+     * 复制文件
+     *
+     * @param directory
+     * @param prefix
+     */
+    public static String moveFile(String directory, String prefix) {
+        File dir = new File(directory);
+        if (dir.isDirectory()) {
+            String grandParentDirectory = dir.getParent();
+            File boxFile = new File(directory + File.separator + prefix + ".box");
+            File trFile = new File(directory + File.separator + prefix + ".tr");
+
+            File tempDir = new File(grandParentDirectory + File.separator + "boxtr");
+            if (!tempDir.exists()) {
+                tempDir.mkdir();
+            }
+
+            File tempBoxFile = new File(grandParentDirectory + File.separator + "boxtr" + File.separator + prefix + ".box");
+            File tempTrFile = new File(grandParentDirectory + File.separator + "boxtr" + File.separator + prefix + ".tr");
+
+            nioTransferCopy(boxFile, tempBoxFile);
+            nioTransferCopy(trFile, tempTrFile);
+
+            return grandParentDirectory + File.separator + "boxtr";
+        }
+        return null;
+
+    }
+
+    /**
+     * 拷贝
+     *
+     * @param source
+     * @param target
+     */
+    private static void nioTransferCopy(File source, File target) {
+        FileChannel in = null;
+        FileChannel out = null;
+        FileInputStream inStream = null;
+        FileOutputStream outStream = null;
+        try {
+            inStream = new FileInputStream(source);
+            outStream = new FileOutputStream(target);
+            in = inStream.getChannel();
+            out = outStream.getChannel();
+            in.transferTo(0, in.size(), out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(inStream);
+            close(in);
+            close(outStream);
+            close(out);
+        }
+    }
+
+    public static String getParentDirectory(String f) {
+        File file = new File(f);
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                return file.getParent();
+            }
+        }
+        return null;
+    }
+
+
+    public static List<String> getFilesBySuffix(String directory, String suffix) {
+        List<String> files = getFiles(directory);
+
+        List<String> newFiles = new ArrayList<>();
+
+        Iterator<String> it = files.iterator();
+        while (it.hasNext()) {
+            String x = it.next();
+            if (x.endsWith(suffix)) {
+                newFiles.add(x);
+            }
+        }
+        return newFiles;
+    }
+
+    public static ArrayList<String> getFiles(String path) {
+        ArrayList<String> files = new ArrayList<>();
+        File file = new File(path);
+        File[] tempList = file.listFiles();
+
+        for (int i = 0; i < tempList.length; i++) {
+            if (tempList[i].isFile()) {
+                files.add(tempList[i].toString());
+            }
+            if (tempList[i].isDirectory()) {
+            }
+        }
+        return files;
+    }
+
+    public static void main(String[] args) throws IOException {
 //        String path = FileUtil.class.getResource("").getFile();
 //        String fileName = path + "/temp.txt";
 //        FileUtil.readFileByByte(fileName);
@@ -419,7 +515,11 @@ public class FileUtil {
         /*String inputPath = "/Users/zacky/Desktop/tess/test.png";
         String ouputPath = "/Users/zacky/Desktop/tess/test.tif";
         FileUtil.convertToTiff(inputPath, ouputPath);*/
-        FileUtil.writeToFile("/Users/zacky/Desktop/tess/fontf",new String[]{"Sim","Sim"},2);
+        //FileUtil.writeToFile("/Users/zacky/Desktop/tess/fontf", new String[]{"Sim", "Sim"}, 2);
+
+        List<String> list = FileUtil.getFilesBySuffix("/Users/zacky/Desktop/work/upload/boxtr", "box");
+        System.out.println(list.size());
+        //FileUtil.moveFile("/Users/zacky/Desktop/work/upload/1536736913851", "chiTra.SimSun.1536736913851");
     }
 
 }

@@ -46,10 +46,9 @@ public class CmdUtils {
         List<String> list = new ArrayList<>();
         String fileDir = "/Users/zacky/Desktop/tess";
         // box train
-        /*String boxTraincmd = "tesseract imageFile boxFile -psm 10 nobatch box.train";
+        String boxTraincmd = "tesseract imageFile boxFile -psm 10 nobatch box.train";
         String cmdStr = boxTraincmd.replace("imageFile", fileDir + File.separator + "chi.SimSun.tif").replace("boxFile", fileDir + File.separator +
                 "chi.SimSun");
-        */
 
         //unicharsetExtractor
         /*String cmdunicharset_extractor = "unicharset_extractor boxFile";
@@ -74,7 +73,7 @@ public class CmdUtils {
         /*String cmdcntraining = "cntraining trFile";
         String cmdStr = cmdcntraining.replace("trFile","chi.SimSun.tr");*/
 
-        String cmdStr = "mv inttemp " + "chi.SimSun" + ".inttemp";
+        /*String cmdStr = "mv inttemp " + "chi.SimSun" + ".inttemp";*/
 
         list.addAll(Arrays.asList(cmdStr.split("\\s+")));
         CmdUtils.runCmdCommand(list, "change directory", fileDir);

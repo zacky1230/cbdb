@@ -1,14 +1,15 @@
 package com.chineseall.controller;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.chineseall.service.TesseractService;
+import com.chineseall.util.RetMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
@@ -23,9 +24,17 @@ public class TesseractController {
     private TesseractService tesseractService;
 
     @RequestMapping("/getBoxData")
-    public ResponseEntity getBoxData(HttpServletRequest request, @RequestBody JSONArray jsonParam) throws IOException {
+    public ResponseEntity getBoxData(@RequestBody JSONObject jsonParam) throws IOException {
+        RetMsg retMsg = new RetMsg();
         tesseractService.saveBoxToFile(jsonParam);
-        return ResponseEntity.ok(100);
+        return ResponseEntity.ok(retMsg);
+    }
+
+    @RequestMapping("/trainBox/{t}")
+    public ResponseEntity trainBox(@PathVariable String t){
+        RetMsg retMsg = new RetMsg();
+        tesseractService.trainBox(t);
+        return ResponseEntity.ok(retMsg);
     }
 
 }

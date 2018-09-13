@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author gy1zc3@gmail.com
@@ -118,6 +119,15 @@ public class FileUploadServiceImpl implements FileUploadService {
             fileUploadServiceDao.add(info);
         }
         return String.valueOf(currentTime);
+    }
+
+    @Override
+    public String getTifFilePathByTimeStamp(String timeStamp) {
+        UploadPngTifInfo info = fileUploadServiceDao.getTifFilePathByTimeStamp(timeStamp);
+        if (info != null) {
+            return info.getUploadDirectory() + File.separator + info.getPngFileName();
+        }
+        return null;
     }
 
     private boolean saveFile(MultipartFile file, String saveFileName, long currentTime) {

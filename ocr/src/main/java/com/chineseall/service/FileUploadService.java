@@ -18,4 +18,6 @@ public interface FileUploadService {
     String getRealFilePath(String fileName);
 
     String saveMutilTessFile(List<MultipartFile> files, String lang, String fontFamily);
+
+    String getTifFilePathByTimeStamp(String timeStamp);
 }

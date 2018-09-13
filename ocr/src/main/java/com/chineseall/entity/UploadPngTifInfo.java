@@ -11,6 +11,7 @@ public class UploadPngTifInfo {
     private String uploadDirectory;
     private String pngFileName;
     private String tifFileName;
+    private String boxName;
     private String fontFamily;
     private String lang;
     private long timeStamp;
@@ -96,5 +97,13 @@ public class UploadPngTifInfo {
 
     public void setDeleted(int deleted) {
         this.deleted = deleted;
+    }
+
+    public String getBoxName() {
+        return boxName;
+    }
+
+    public void setBoxName(String boxName) {
+        this.boxName = boxName;
     }
 }

@@ -1,6 +1,6 @@
 package com.chineseall.service;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
 
@@ -9,5 +9,7 @@ import java.io.IOException;
  * Created by zacky on 15:18.
  */
 public interface TesseractService {
-    void saveBoxToFile(JSONArray jsonParam) throws IOException;
+    void saveBoxToFile(JSONObject jsonParam) throws IOException;
+
+    void trainBox(String t);
 }

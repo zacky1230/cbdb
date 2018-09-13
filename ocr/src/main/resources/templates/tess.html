@@ -10,20 +10,18 @@
         position: absolute;
         left: 0px;
         top: 0px;
-        border: thin solid #aaaaaa;
     }
 
     #canvas2 {
         position: absolute;
         left: 0px;
         top: 0px;
-        border: thin solid #aaaaaa;
     }
 
     #imgShow {
         float: left;
         width: 1000px;
-        border: 1px solid;
+        /*border: 1px solid;*/
     }
 
     #boxInfo {
@@ -63,7 +61,7 @@
 <body onload="pageLoad()" style="margin:0px;">
 <div>
     <div id="imgShow">
-        <canvas id="canvas1" width="1000" height="600"></canvas>
+        <canvas id="canvas1" width="1020" height="610"></canvas>
         <canvas id="canvas2" width="1000" height="600"></canvas>
     </div>
     <div id="boxInfo">
@@ -91,62 +89,79 @@
 
         </form>
     </div>
-    <span th:text="${timeStamp}"></span>
+    <span id="timeStamp" th:text="${timeStamp}" hidden></span>
+    <img id="showImg" style="display: none">
 </div>
 <script src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript">
 
-    /*$(document).ready(function () {
-       console.log("start");
-       alert(${timeStamp});
-    });*/
-
     var canvas1 = document.getElementById("canvas1");
-    var canvas2 = document.getElementById("canvas2");
     var context1 = canvas1.getContext("2d");
+    var canvas2 = document.getElementById("canvas2");
     var context2 = canvas2.getContext("2d");
     var trCnt = 0;
     var boxData = [];
 
-    //load picture in canvas
-    var imgObj = new Image();
-    imgObj.src = "/image/test2.tiff";
-    imgObj.onload = function () {
-        context1.drawImage(this, 0, 0);
-    }
+    $(document).ready(function () {
+        //load picture in canvas
+        if ($("#timeStamp").text()) {
+            var timeStamp = $("#timeStamp").text();
+            var url = "/image/get/" + timeStamp;
+            $.ajax({
+                url: url,
+                xhrFields: {
+                    withCredentials: true
+                },
+                type: "POST",
+                cache: false,
+                processData: false,
+                contentType: false,
+                async: true,
+                success: function (result) {
+                    $("#showImg").attr("src", 'data:image/png;base64,' + result);
+                    var imgObj = new Image();
+                    imgObj.src = $("#showImg")[0].src;
+                    imgObj.onload = function () {
+                        context1.drawImage(this, 0, 0);
+                    }
+                }
+            })
+        }
+    });
 
     //load page
     function pageLoad() {
-        console.log("start");
-
         var tickSize = 20;
 
-        var tickCntW = Math.ceil(canvas1.width / tickSize);
-        var tickCntH = Math.ceil(canvas1.height / tickSize);
+        var tickCntW = Math.ceil((canvas1.width - 20) / tickSize);
+        var tickCntH = Math.ceil((canvas1.height - 10) / tickSize);
 
-        context1.moveTo(canvas1.width, canvas1.height);
-        context1.lineTo(0, canvas1.height);
+        //draw x axis
+        context1.moveTo(canvas1.width - 20, canvas1.height - 10);
+        context1.lineTo(0, canvas1.height - 10);
         context1.lineWidth = 2;
         context1.strokeStyle = "#000";
         context1.stroke();
         for (var i = 0; i <= tickCntW; i++) {
-            context1.moveTo(tickSize * i, canvas1.height);
-            context1.lineTo(tickSize * i, canvas1.height - 10);
+            context1.moveTo(tickSize * i, canvas1.height - 10);
+            context1.lineTo(tickSize * i, canvas1.height - 15);
             context1.textAlign = 'center';
-            context1.fillText(tickSize * i, tickSize * i, canvas1.height - 10)
+            context1.fillText(tickSize * i, tickSize * i, canvas1.height)
         }
         context1.strokeStyle = "#f00";
         context1.stroke();
-        context1.moveTo(canvas1.width, canvas1.height);
-        context1.lineTo(canvas1.width, 0);
+
+        //draw y axis
+        context1.moveTo(canvas1.width - 20, canvas1.height - 10);
+        context1.lineTo(canvas1.width - 20, 0);
         context1.lineWidth = 2;
         context1.strokeStyle = "#000";
         context1.stroke();
         for (var i = 0; i <= tickCntH; i++) {
-            context1.moveTo(canvas1.width, tickSize * i);
-            context1.lineTo(canvas1.width - 5, tickSize * i);
+            context1.moveTo(canvas1.width - 20, tickSize * i);
+            context1.lineTo(canvas1.width - 25, tickSize * i);
             context1.textAlign = 'center';
-            context1.fillText(tickSize * i, canvas1.width - 15, tickSize * i)
+            context1.fillText(tickSize * i, canvas1.width - 10, tickSize * i)
         }
         context1.strokeStyle = "#f00";
         context1.stroke();
@@ -196,12 +211,16 @@
     }
 
     $("#submit").click(function () {
+        var json = {
+            't': $("#timeStamp").text(),
+            'data': boxData
+        };
         $.ajax({
             url: "/ocr/getBoxData",
             contentType: 'application/json',
             type: "POST",
             cache: false,
-            data: JSON.stringify(boxData),
+            data: JSON.stringify(json),
             processData: false,
             async: false,
             success: function (result) {

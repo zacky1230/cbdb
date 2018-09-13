@@ -13,17 +13,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
+import sun.misc.BASE64Encoder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -111,6 +110,7 @@ public class FileUploadController {
 
     /**
      * 图片预览
+     *
      * @param fileName
      * @return
      * @throws IOException
@@ -129,4 +129,36 @@ public class FileUploadController {
         return ResponseEntity.ok(resourceLoader.getResource("file:" + file.toString()));
     }
 
+
+    @RequestMapping("showTifPicture/{timeStamp}")
+    public ResponseEntity showTifPicture(@PathVariable String timeStamp) throws IOException {
+        if (StringUtils.isNotEmpty(timeStamp)) {
+            String fileName = fileUploadService.getTifFilePathByTimeStamp(timeStamp);
+            Path file = Paths.get(fileName);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            return ResponseEntity.ok(resourceLoader.getResource("file:" + file.toString()));
+        }
+        return ResponseEntity.ok(resourceLoader.getResource("file:" + null));
+    }
+
+
+    @RequestMapping(value = "/image/get/{timeStamp}")
+    @ResponseBody
+    public String getImage(@PathVariable String timeStamp) {
+        InputStream in;
+        byte[] data = null;
+        try {
+            String fileName = fileUploadService.getTifFilePathByTimeStamp(timeStamp);
+            in = new FileInputStream(fileName);
+            data = new byte[in.available()];
+            in.read(data);
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        BASE64Encoder encoder = new BASE64Encoder();
+        return encoder.encode(data);
+    }
 }
