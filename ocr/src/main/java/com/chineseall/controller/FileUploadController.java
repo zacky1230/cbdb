@@ -1,5 +1,6 @@
 package com.chineseall.controller;
 
+import com.chineseall.entity.UploadPngTifInfo;
 import com.chineseall.service.BaiduAiService;
 import com.chineseall.service.FileUploadService;
 import com.chineseall.util.RetMsg;
@@ -103,8 +104,9 @@ public class FileUploadController {
         MultipartHttpServletRequest multipartRequest = commonsMultipartResolver.resolveMultipart(request);
         String lang = multipartRequest.getParameter("lang");
         String fontFamily = multipartRequest.getParameter("fontFamily");
-        String timeStamp = fileUploadService.saveMutilTessFile(files, lang, fontFamily);
-        model.addAttribute("timeStamp", timeStamp);
+        String text = multipartRequest.getParameter("text");
+        UploadPngTifInfo info = fileUploadService.saveMutilTessFile(files, lang, fontFamily, text);
+        model.addAttribute("info", info);
         return "tess";
     }
 

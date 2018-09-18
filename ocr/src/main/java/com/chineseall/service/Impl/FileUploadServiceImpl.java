@@ -87,7 +87,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public String saveMutilTessFile(List<MultipartFile> files, String lang, String fontFamily) {
+    public UploadPngTifInfo saveMutilTessFile(List<MultipartFile> files, String lang, String fontFamily, String text) {
         if (files.isEmpty()) {
             return null;
         }
@@ -107,18 +107,19 @@ public class FileUploadServiceImpl implements FileUploadService {
                 count++;
             }
         }
+        UploadPngTifInfo info = new UploadPngTifInfo();
         if (count == files.size()) {
             String saveFileName = lang + "." + fontFamily + "." + currentTime;
-            UploadPngTifInfo info = new UploadPngTifInfo();
             info.setUploadDirectory(fileUploadPath + File.separator + currentTime);
             info.setFontFamily(fontFamily);
             info.setLang(lang);
             info.setTimeStamp(currentTime);
             info.setPngFileName(saveFileName + ".png");
             info.setTifFileName(saveFileName + ".tif");
+            info.setPicText(text.trim());
             fileUploadServiceDao.add(info);
         }
-        return String.valueOf(currentTime);
+        return info;
     }
 
     @Override

@@ -14,6 +14,7 @@ public class UploadPngTifInfo {
     private String boxName;
     private String fontFamily;
     private String lang;
+    private String picText;
     private long timeStamp;
     private Date createTime;
     private Date updateTime;
@@ -105,5 +106,13 @@ public class UploadPngTifInfo {
 
     public void setBoxName(String boxName) {
         this.boxName = boxName;
+    }
+
+    public String getPicText() {
+        return picText;
+    }
+
+    public void setPicText(String picText) {
+        this.picText = picText;
     }
 }

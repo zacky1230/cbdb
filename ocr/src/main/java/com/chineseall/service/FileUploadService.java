@@ -1,5 +1,6 @@
 package com.chineseall.service;
 
+import com.chineseall.entity.UploadPngTifInfo;
 import com.chineseall.util.RetMsg;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +18,7 @@ public interface FileUploadService {
 
     String getRealFilePath(String fileName);
 
-    String saveMutilTessFile(List<MultipartFile> files, String lang, String fontFamily);
+    UploadPngTifInfo saveMutilTessFile(List<MultipartFile> files, String lang, String fontFamily, String text);
 
     String getTifFilePathByTimeStamp(String timeStamp);
 }

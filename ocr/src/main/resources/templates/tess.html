@@ -18,10 +18,21 @@
         top: 0px;
     }
 
+    #canvas {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+    }
+
+    #canvasImg {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+    }
+
     #imgShow {
         float: left;
         width: 1000px;
-        /*border: 1px solid;*/
     }
 
     #boxInfo {
@@ -57,12 +68,23 @@
         outline: none;
         cursor: pointer;
     }
+
+    #textInput {
+        width: 500px;
+        height: 100px;
+        border: 1px solid;
+        position: absolute;
+        float: right;
+        bottom: 0px;
+    }
 </style>
 <body onload="pageLoad()" style="margin:0px;">
 <div>
     <div id="imgShow">
+        <img id="canvasImg">
         <canvas id="canvas1" width="1020" height="610"></canvas>
         <canvas id="canvas2" width="1000" height="600"></canvas>
+        <canvas id="canvas" width="1000" height="600"></canvas>
     </div>
     <div id="boxInfo">
         <button type="button" name="button" style="margin:20px 0 20px 0;position: relative;left: 20%;"
@@ -73,24 +95,35 @@
                 onclick="delRow()">
             DelLastRow
         </button>
-        <button id="submit" type="submit" style="position: relative;left:20%;">submit</button>
+        <button id="submit" type="submit" style="position: relative;left:20%;">gen box</button>
+        <button id="train" type="submit" style="position: relative;left:20%;">train</button>
+
+
+        <div style="display: inline-block;width: 300px;padding-left: 30%;padding-bottom: 10px;">
+            <label>x:</label><input type="text" id="xAxis" style="width: 100px;display: inline;">
+            <label>y:</label><input type="text" id="yAxis" style="width: 100px;display: inline;">
+        </div>
 
         <form class="" method="post">
             <table id="boxTable">
                 <tr>
                     <td>value</td>
-                    <td>x</td>
-                    <td>y</td>
-                    <td>width</td>
-                    <td>height</td>
+                    <td>x[左上]</td>
+                    <td>y[左上]</td>
+                    <td>x[右下]</td>
+                    <td>y[右下]</td>
                     <td>operate</td>
                 </tr>
             </table>
 
         </form>
     </div>
-    <span id="timeStamp" th:text="${timeStamp}" hidden></span>
-    <img id="showImg" style="display: none">
+    <div id="textInput">
+        <span>Please input image text。</span>
+        <textarea id="boxText" onblur="refreshBox()" style="height: 80px;width: 498px;"></textarea>
+    </div>
+    <span id="timeStamp" th:text="${info.timeStamp}" hidden></span>
+    <span id="picText" th:text="${info.picText}" hidden></span>
 </div>
 <script src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript">
@@ -118,16 +151,35 @@
                 contentType: false,
                 async: true,
                 success: function (result) {
-                    $("#showImg").attr("src", 'data:image/png;base64,' + result);
-                    var imgObj = new Image();
-                    imgObj.src = $("#showImg")[0].src;
-                    imgObj.onload = function () {
-                        context1.drawImage(this, 0, 0);
-                    }
+                    $("#canvasImg").attr("src", 'data:image/png;base64,' + result);
                 }
             })
         }
+
+        loadText();
     });
+
+
+    function refreshBox() {
+        delAllRow();
+        var text = $("#boxText").val().trim();
+        if (text) {
+            for (var i = 1; i <= text.length; i++) {
+                addRow();
+                $(".char" + i).val(text[i - 1]);
+            }
+        }
+    }
+
+    function loadText() {
+        var text = $("#picText").text().trim();
+        if (text) {
+            for (var i = 1; i <= text.length; i++) {
+                addRow();
+                $(".char" + i).val(text[i - 1]);
+            }
+        }
+    }
 
     //load page
     function pageLoad() {
@@ -136,7 +188,24 @@
         var tickCntW = Math.ceil((canvas1.width - 20) / tickSize);
         var tickCntH = Math.ceil((canvas1.height - 10) / tickSize);
 
-        //draw x axis
+        var canvas = document.getElementById("canvas");
+        canvas.onmousemove = function (e) {
+            var bbox = canvas.getBoundingClientRect();
+
+            var xx = e.clientX - bbox.left;
+            var yy = e.clientY - bbox.top;
+
+            $("#xAxis").val(xx);
+            $("#yAxis").val(yy);
+        };
+
+        drawXAxis(tickCntW, tickSize);
+
+        drawYAxis(tickCntH, tickSize);
+
+    }
+
+    function drawXAxis(tickCntW, tickSize) {
         context1.moveTo(canvas1.width - 20, canvas1.height - 10);
         context1.lineTo(0, canvas1.height - 10);
         context1.lineWidth = 2;
@@ -150,8 +219,9 @@
         }
         context1.strokeStyle = "#f00";
         context1.stroke();
+    }
 
-        //draw y axis
+    function drawYAxis(tickCntH, tickSize) {
         context1.moveTo(canvas1.width - 20, canvas1.height - 10);
         context1.lineTo(canvas1.width - 20, 0);
         context1.lineWidth = 2;
@@ -170,9 +240,12 @@
 
     function addRow() {
         trCnt++;
-        $('#boxTable > tbody').append('<tr class="tr' + trCnt + '"><td><input class="char' + trCnt + '" type="text" onchange="drawRect()"></td>' +
-            '<td><input class="x' + trCnt + '" type="text" onchange="drawRect()"></td><td><input class="y' + trCnt + '" type="text" onchange="drawRect()"></td>' +
-            '<td><input class="w' + trCnt + '" type="text" onchange="drawRect()"></td><td><input class="h' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+        $('#boxTable > tbody').append('<tr class="addTr tr' + trCnt + '"><td><input class="char' + trCnt +
+            '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="x-left-top' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="y-left-top' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="x-right-bottom' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="y-right-bottom' + trCnt + '" type="text" onchange="drawRect()"></td>' +
             '<td>' + trCnt + '</td></tr>');
     }
 
@@ -183,28 +256,36 @@
         }
     }
 
+    function delAllRow() {
+        if ($("#boxTable tr").length > 1) {
+            trCnt = 0;
+            $("#boxTable .addTr").remove();
+        }
+    }
+
 
     function drawRect() {
         getDataInfo();
         var size = boxData.length;
         context2.clearRect(0, 0, 1000, 600);
+        var height = $("#canvasImg").height();
         for (var i = 0; i < size; i++) {
             var data = boxData[i];
             if (data.x > 0 && data.y > 0 && data.w > 0 && data.h > 0) {
-                context2.strokeRect(data.x, data.y, data.w, data.h);
+                context2.strokeRect(data.x, height - data.h, data.w - data.x, data.h - data.y);
             }
         }
     }
 
     function getDataInfo() {
         boxData = [];
-        for (i = 1; i <= trCnt; i++) {
+        for (var i = 1; i <= trCnt; i++) {
             var data = {};
             data.char = $(".char" + i).val();
-            data.x = $(".x" + i).val();
-            data.y = $(".y" + i).val();
-            data.w = $(".w" + i).val();
-            data.h = $(".h" + i).val();
+            data.x = $(".x-left-top" + i).val();
+            data.y = ($("#canvasImg").height() - $(".y-right-bottom" + i).val()) + "";
+            data.w = $(".x-right-bottom" + i).val();
+            data.h = ($("#canvasImg").height() - $(".y-left-top" + i).val()) + "";
             boxData.push(data);
         }
 
@@ -225,7 +306,21 @@
             async: false,
             success: function (result) {
                 console.log(result);
-                $("#result").val(result.data)
+            }
+        })
+    });
+
+    $("#train").click(function () {
+        var url = "/ocr/trainBox/" + $("#timeStamp").text();
+        $.ajax({
+            url: url,
+            contentType: 'application/json',
+            type: "POST",
+            cache: false,
+            processData: false,
+            async: false,
+            success: function (result) {
+                console.log(result);
             }
         })
     });

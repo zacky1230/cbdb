@@ -103,7 +103,7 @@ public class TesseractServiceImpl implements TesseractService {
 
         List<String> boxFilesName = FileUtil.getFilesBySuffix(tempDir, ".box");
 
-        trainingProcess.unicharsetExtractor(parentDir, boxFilesName);
+        trainingProcess.unicharsetExtractor(tempDir, boxFilesName);
 
         String[] fontFamilys = getFontFamily(boxFilesName);
 

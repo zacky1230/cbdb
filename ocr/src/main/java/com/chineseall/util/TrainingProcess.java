@@ -33,7 +33,7 @@ public class TrainingProcess {
     private String tessDataDir;
 
 
-    private final String cmdtess_train = "tesseract imageFile boxFile -psm 3 nobatch box.train";
+    private final String cmdtess_train = "tesseract imageFile boxFile box.train";
     private final String cmdunicharset_extractor = "unicharset_extractor boxFile"; // lang.fontname.exp0.box lang// .fontname.exp1.box ...
     private final String cmdset_unicharset_properties = "set_unicharset_properties -U unicharset -O unicharset --script_dir=%s";
     private final String cmdshapeclustering = "shapeclustering -F font_properties -U unicharset trFile"; //
