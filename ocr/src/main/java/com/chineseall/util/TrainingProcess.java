@@ -234,4 +234,18 @@ public class TrainingProcess {
         }
         return new LinkedList<>(Arrays.asList(cmdStr.split("\\s+")));
     }
+
+    /**
+     * test png
+     *
+     * @param fileName
+     * @param lang
+     * @param fileDir
+     * @return
+     */
+    public String testPng(String fileName, String lang, String fileDir) {
+        String cmdStr = "tesseract " + fileName + " -l " + lang + " out";
+        CmdUtils.runCmdCommand(getCommand(cmdStr), "test png", fileDir);
+        return FileUtil.getTxtFileContent(fileDir + File.separator + "out.txt");
+    }
 }

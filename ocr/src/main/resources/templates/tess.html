@@ -254,6 +254,7 @@
             trCnt--;
             $("#boxTable tr:last").remove();
         }
+        drawRect();
     }
 
     function delAllRow() {
@@ -261,6 +262,7 @@
             trCnt = 0;
             $("#boxTable .addTr").remove();
         }
+        drawRect();
     }
 
 
@@ -305,6 +307,11 @@
             processData: false,
             async: false,
             success: function (result) {
+                if (result.msg == 'ok') {
+                    alert("gen box success!");
+                } else {
+                    alert("gen box fail, try again!");
+                }
                 console.log(result);
             }
         })
@@ -321,6 +328,12 @@
             async: false,
             success: function (result) {
                 console.log(result);
+                if (result.msg = "success") {
+                    alert("train success!");
+                    window.location.href = "toTessFilePage";
+                } else {
+                    alert("train fail, try again!");
+                }
             }
         })
     });

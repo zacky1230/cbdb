@@ -18,30 +18,30 @@ public class PageController {
     @RequestMapping(value = "toFilePage", method = RequestMethod.GET)
     public String toFilePage() {
         logger.info("show file upload page");
-        return "/file";
+        return "file";
     }
 
     @RequestMapping(value = "toMultiFilePage", method = RequestMethod.GET)
     public String toMultiFilePage() {
         logger.info("show file upload page");
-        return "/multifile";
+        return "multifile";
     }
 
     @RequestMapping(value = "toOcrPage", method = RequestMethod.GET)
     public String toOcrPage() {
         logger.info("show ocr page");
-        return "/ocr";
+        return "ocr";
     }
 
     @RequestMapping(value = "toTessPage", method = RequestMethod.GET)
     public String toTessPage() {
         logger.info("show tess page");
-        return "/tess";
+        return "tess";
     }
 
     @RequestMapping(value = "toTessFilePage", method = RequestMethod.GET)
     public String toTessFilePage() {
         logger.info("show tessFile page");
-        return "/tessFile";
+        return "tessFile";
     }
 }

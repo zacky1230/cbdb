@@ -50,4 +50,14 @@ public class RetMsg<T> {
         this.data = data;
     }
 
+    public void success(String msg) {
+        this.code = 200;
+        this.msg = msg;
+    }
+
+    public void fail() {
+        this.code = 200;
+        this.msg = "fail";
+    }
+
 }

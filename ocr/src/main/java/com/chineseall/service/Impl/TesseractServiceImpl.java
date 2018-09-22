@@ -9,7 +9,9 @@ import com.chineseall.util.FileUtil;
 import com.chineseall.util.StringUtils;
 import com.chineseall.util.TrainingProcess;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,6 +27,9 @@ import java.util.List;
 @Service("tesseractServiceImpl")
 public class TesseractServiceImpl implements TesseractService {
 
+    @Value("${file.upload.path}")
+    private String fileUploadPath;
+
     @Autowired
     private FileUploadServiceDao fileUploadServiceDao;
 
@@ -32,10 +37,10 @@ public class TesseractServiceImpl implements TesseractService {
     private TrainingProcess trainingProcess;
 
     @Override
-    public void saveBoxToFile(JSONObject jsonParam) throws IOException {
+    public boolean saveBoxToFile(JSONObject jsonParam) throws IOException {
         String t = jsonParam.getString("t");
         if (StringUtils.isEmpty(t)) {
-            return;
+            return false;
         }
 
         UploadPngTifInfo info = fileUploadServiceDao.getTifFilePathByTimeStamp(t);
@@ -74,7 +79,12 @@ public class TesseractServiceImpl implements TesseractService {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("timeStamp", t);
         hashMap.put("boxName", boxName);
-        fileUploadServiceDao.updateBoxInfo(hashMap);
+        int result = fileUploadServiceDao.updateBoxInfo(hashMap);
+        if (result > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -83,9 +93,9 @@ public class TesseractServiceImpl implements TesseractService {
      * @param t
      */
     @Override
-    public void trainBox(String t) {
+    public String trainBox(String t) {
         if (StringUtils.isEmpty(t)) {
-            return;
+            return "fail";
         }
         UploadPngTifInfo info = fileUploadServiceDao.getTifFilePathByTimeStamp(t);
 
@@ -128,6 +138,42 @@ public class TesseractServiceImpl implements TesseractService {
         trainingProcess.combineTessdata(lang, tempDir);
 
         trainingProcess.mvTrainedData(lang, tempDir);
+
+        return "success";
+    }
+
+    @Override
+    public String testPng(MultipartFile file, String lang) {
+        String fileName = saveFile(file);
+        if (StringUtils.isEmpty(fileName)) {
+            return null;
+        }
+        return trainingProcess.testPng(fileName, lang, FileUtil.getParentDirectory(fileName));
+    }
+
+    private String saveFile(MultipartFile file) {
+        if (file.isEmpty()) {
+            return null;
+        }
+
+        String filePath = fileUploadPath + File.separator + "testPng" + File.separator + System.currentTimeMillis() + ".png";
+        File dest = new File(filePath);
+
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdir();
+        }
+
+        try {
+            file.transferTo(dest);
+            return filePath;
+
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private String[] getFontFamily(List<String> boxFilesName) {

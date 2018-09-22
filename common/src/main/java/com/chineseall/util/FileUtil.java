@@ -345,9 +345,8 @@ public class FileUtil {
             String tempString = null;
             do {
                 tempString = reader.readLine();
-                sb.append(tempString);
-                sb.append("\n");
-                if (tempString != null && tempString.length() == 0) {
+                if (StringUtils.isNotEmpty(tempString)) {
+                    sb.append(tempString);
                     sb.append("\n");
                 }
             } while (tempString != null);
@@ -450,6 +449,8 @@ public class FileUtil {
         File file = new File(f);
         if (file.exists()) {
             if (file.isDirectory()) {
+                return file.getParent();
+            } else {
                 return file.getParent();
             }
         }

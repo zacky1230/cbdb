@@ -20,6 +20,7 @@
         SELECT * FROM ocr_upload_png_tiff_info WHERE timeStamp = #{timeStamp,jdbcType=VARCHAR}
     </select>
     <update id="updateBoxInfo" parameterType="java.util.HashMap">
-        UPDATE ocr_upload_png_tiff_info set boxName = #{boxName,jdbcType=VARCHAR} WHERE timeStamp = #{timeStamp,jdbcType=VARCHAR}
+        UPDATE ocr_upload_png_tiff_info set boxName = #{boxName,jdbcType=VARCHAR},updateTime = now() WHERE timeStamp =
+        #{timeStamp,jdbcType=VARCHAR}
     </update>
 </mapper>

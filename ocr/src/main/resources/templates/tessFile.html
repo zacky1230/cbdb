@@ -5,8 +5,11 @@
     <title>Upload File</title>
 </head>
 <body>
-
-<form action="mutilTessFile" method="post" enctype="multipart/form-data">
+<div>
+    <button onclick="showTrain()">训练</button>
+    <button onclick="showTest()">测试</button>
+</div>
+<form id="trainForm" action="mutilTessFile" method="post" enctype="multipart/form-data">
     训练语言<input name="lang" placeholder="lang" value="chiTra">
     训练字体<input name="fontFamily" placeholder="fontFamily" value="SimSun">
     <input type="submit" value="提交">
@@ -14,8 +17,59 @@
     <input id="pngFile" type="file" name="fileName">
     <h1>Upload Tif Picture</h1>
     <input id="tifFile" type="file" name="fileName">
-    <h1>Picture text</h1>
-    <textarea name="text" hidden> </textarea>
 </form>
+
+<div id="testForm">
+    <form method="post" enctype="multipart/form-data">
+        测试语言<input id="lang" name="lang" placeholder="lang" value="chiTra">
+        <input type="button" id="submit" value="提交">
+        <h1>Upload Png Picture</h1>
+        <input id="pngF" type="file" class="img-btn" name="fileName">
+    </form>
+    <textarea style="width: 600px;height: 400px;" id="result">
+
+    </textarea>
+</div>
+
+
 </body>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script>
+
+    window.onload = function () {
+        document.getElementById("testForm").style.visibility = "hidden";
+    }
+
+    function showTrain() {
+        document.getElementById("trainForm").style.visibility = "visible";
+        document.getElementById("testForm").style.visibility = "hidden";
+    }
+
+    function showTest() {
+        document.getElementById("testForm").style.visibility = "visible";
+        document.getElementById("trainForm").style.visibility = "hidden";
+    }
+
+    $("#submit").click(function () {
+        var a = new FormData();
+        a.append("fileName", $(".img-btn")[0].files[0]);
+        a.append("lang", $("#lang").val());
+        $.ajax({
+            url: "ocr/testTessFile",
+            xhrFields: {
+                withCredentials: true
+            },
+            type: "POST",
+            cache: false,
+            data: a,
+            processData: false,
+            contentType: false,
+            async: false,
+            success: function (result) {
+                console.log(result);
+                $("#result").val(result.data)
+            }
+        })
+    });
+</script>
 </html>

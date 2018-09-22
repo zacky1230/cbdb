@@ -1,6 +1,7 @@
 package com.chineseall.service;
 
 import com.alibaba.fastjson.JSONObject;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -9,7 +10,9 @@ import java.io.IOException;
  * Created by zacky on 15:18.
  */
 public interface TesseractService {
-    void saveBoxToFile(JSONObject jsonParam) throws IOException;
+    boolean saveBoxToFile(JSONObject jsonParam) throws IOException;
 
-    void trainBox(String t);
+    String trainBox(String t);
+
+    String testPng(MultipartFile file, String lang);
 }

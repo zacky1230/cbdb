@@ -116,7 +116,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             info.setTimeStamp(currentTime);
             info.setPngFileName(saveFileName + ".png");
             info.setTifFileName(saveFileName + ".tif");
-            info.setPicText(text.trim());
+            info.setPicText("");
             fileUploadServiceDao.add(info);
         }
         return info;
