@@ -131,7 +131,12 @@ public class FileUploadController {
         return ResponseEntity.ok(resourceLoader.getResource("file:" + file.toString()));
     }
 
-
+    /**
+     * 显示图片
+     * @param timeStamp
+     * @return
+     * @throws IOException
+     */
     @RequestMapping("showTifPicture/{timeStamp}")
     public ResponseEntity showTifPicture(@PathVariable String timeStamp) throws IOException {
         if (StringUtils.isNotEmpty(timeStamp)) {
@@ -146,6 +151,11 @@ public class FileUploadController {
     }
 
 
+    /**
+     *
+     * @param timeStamp
+     * @return
+     */
     @RequestMapping(value = "/image/get/{timeStamp}")
     @ResponseBody
     public String getImage(@PathVariable String timeStamp) {
