@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author gy1zc3@gmail.com
@@ -87,38 +86,34 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public UploadPngTifInfo saveMutilTessFile(List<MultipartFile> files, String lang, String fontFamily, String text) {
-        if (files.isEmpty()) {
+    public UploadPngTifInfo saveTrainTessFile(MultipartFile file, String lang, String fontFamily, String text) {
+        if (file.isEmpty()) {
             return null;
         }
         long currentTime = TimeUtil.getCurrentTimeStamp();
-        int count = 0;
 
-        for (MultipartFile file : files) {
-            String fileName = file.getOriginalFilename();
-            String saveFileName = lang + "." + fontFamily + "." + currentTime;
-            if (fileName.contains("png")) {
-                saveFileName = saveFileName + ".png";
-            } else {
-                saveFileName = saveFileName + ".tif";
-            }
 
-            if (saveFile(file, saveFileName, currentTime)) {
-                count++;
-            }
+        String fileName = file.getOriginalFilename();
+        String saveFileName = lang + "." + fontFamily + "." + currentTime;
+        if (fileName.contains("png")) {
+            saveFileName = saveFileName + ".png";
+        } else {
+            saveFileName = saveFileName + ".tif";
         }
+
+        saveFile(file, saveFileName, currentTime);
+
         UploadPngTifInfo info = new UploadPngTifInfo();
-        if (count == files.size()) {
-            String saveFileName = lang + "." + fontFamily + "." + currentTime;
-            info.setUploadDirectory(fileUploadPath + File.separator + currentTime);
-            info.setFontFamily(fontFamily);
-            info.setLang(lang);
-            info.setTimeStamp(currentTime);
-            info.setPngFileName(saveFileName + ".png");
-            info.setTifFileName(saveFileName + ".tif");
-            info.setPicText("");
-            fileUploadServiceDao.add(info);
-        }
+
+        info.setUploadDirectory(fileUploadPath + File.separator + currentTime);
+        info.setFontFamily(fontFamily);
+        info.setLang(lang);
+        info.setTimeStamp(currentTime);
+        info.setPngFileName(saveFileName + ".png");
+        info.setTifFileName(saveFileName + ".tif");
+        info.setPicText("");
+        fileUploadServiceDao.add(info);
+
         return info;
     }
 

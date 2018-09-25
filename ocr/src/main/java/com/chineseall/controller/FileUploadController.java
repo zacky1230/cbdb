@@ -97,15 +97,15 @@ public class FileUploadController {
      * @param request
      * @return
      */
-    @RequestMapping("mutilTessFile")
-    public String mutilTessFile(HttpServletRequest request, Model model) {
-        List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("fileName");
+    @RequestMapping("trainTessFile")
+    public String trainTessFile(HttpServletRequest request, Model model) {
+        MultipartFile file = ((MultipartHttpServletRequest) request).getFile("fileName");
         CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         MultipartHttpServletRequest multipartRequest = commonsMultipartResolver.resolveMultipart(request);
         String lang = multipartRequest.getParameter("lang");
         String fontFamily = multipartRequest.getParameter("fontFamily");
         String text = multipartRequest.getParameter("text");
-        UploadPngTifInfo info = fileUploadService.saveMutilTessFile(files, lang, fontFamily, text);
+        UploadPngTifInfo info = fileUploadService.saveTrainTessFile(file, lang, fontFamily, text);
         model.addAttribute("info", info);
         return "tess";
     }
