@@ -18,7 +18,7 @@ public interface FileUploadService {
 
     String getRealFilePath(String fileName);
 
-    UploadPngTifInfo saveTrainTessFile(MultipartFile file, String lang, String fontFamily, String text);
+    UploadPngTifInfo saveTrainTessFile(MultipartFile file, String lang, String fontFamily);
 
     String getTifFilePathByTimeStamp(String timeStamp);
 }

@@ -6,8 +6,8 @@
         (#{fileName,jdbcType=VARCHAR},#{fileUploadPath,jdbcType=VARCHAR},#{fileSize,jdbcType=INTEGER},#{fileSaveName,jdbcType=VARCHAR})
     </insert>
     <insert id="add" parameterType="com.chineseall.entity.UploadPngTifInfo">
-        INSERT INTO  ocr_upload_png_tiff_info(uploadDirectory, pngFileName, tifFileName, fontFamily, lang, timeStamp,picText)
-        VALUES(#{uploadDirectory,jdbcType=VARCHAR},#{pngFileName,jdbcType=VARCHAR},#{tifFileName,jdbcType=VARCHAR},#{fontFamily,jdbcType=VARCHAR},#{lang,jdbcType=VARCHAR},#{timeStamp,jdbcType=INTEGER},#{picText,jdbcType=VARCHAR})
+        INSERT INTO  ocr_upload_png_tiff_info(uploadDirectory, pngFileName, tifFileName, fontFamily, lang, timeStamp)
+        VALUES(#{uploadDirectory,jdbcType=VARCHAR},#{pngFileName,jdbcType=VARCHAR},#{tifFileName,jdbcType=VARCHAR},#{fontFamily,jdbcType=VARCHAR},#{lang,jdbcType=VARCHAR},#{timeStamp,jdbcType=INTEGER})
     </insert>
     <select id="queryById" parameterType="java.lang.Integer" resultType="com.chineseall.entity.UploadFileInfo">
         SELECT * FROM ocr_upload_file_info WHERE id = #{id,jdbcType=INTEGER}

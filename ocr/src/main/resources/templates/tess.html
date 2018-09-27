@@ -69,7 +69,7 @@
     }
 
 </style>
-<body onload="pageLoad()" style="margin:0px;">
+<body style="margin:0px;">
 <div>
     <div class="columns">
         <div id="imgShow" class="column is-10">
@@ -133,16 +133,16 @@
 
             <div class="filed">
                 <label class="label">請輸入圖片中的文字</label>
-                <textarea style="width: 92%;height: 100px;" id="boxText" class="textarea"
-                          onblur="refreshBox()"></textarea>
+                <textarea style="width: 92%;height: 100px;" id="boxText" class="textarea"></textarea>
             </div>
         </div>
     </div>
 
     <span id="timeStamp" th:text="${info.timeStamp}" hidden></span>
-    <span id="picText" th:text="${info.picText}" hidden></span>
 </div>
 <script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/notify.min.js"></script>
+<script src="/js/col.js"></script>
 <script type="text/javascript">
 
     var canvas1 = document.getElementById("canvas1");
@@ -152,6 +152,7 @@
     var trCnt = 0;
     var boxData = [];
 
+    // init page
     $(document).ready(function () {
         if ($("#timeStamp").text()) {
             var timeStamp = $("#timeStamp").text();
@@ -171,32 +172,9 @@
                 }
             })
         }
-        loadText();
+        pageLoad();
     });
 
-
-    function refreshBox() {
-        delAllRow();
-        var text = $("#boxText").val().trim();
-        if (text) {
-            for (var i = 1; i <= text.length; i++) {
-                addRow();
-                $(".char" + i).val(text[i - 1]);
-            }
-        }
-    }
-
-    function loadText() {
-        var text = $("#picText").text().trim();
-        if (text) {
-            for (var i = 1; i <= text.length; i++) {
-                addRow();
-                $(".char" + i).val(text[i - 1]);
-            }
-        }
-    }
-
-    //load page
     function pageLoad() {
         var tickSize = 20;
 
@@ -218,6 +196,74 @@
 
         drawYAxis(tickCntH, tickSize);
 
+    }
+
+    // load event listener
+    $(function () {
+        $('#boxText').on('valueChange', function (e, previous) {
+            loadBox();
+        });
+        document.onkeyup = function (e) {
+            e = e || window.event;
+            if (e.keyCode == 13 && e.srcElement.classList.contains("tt")) {
+                var inputs = $(".tt");
+                var idx = inputs.index(e.srcElement);
+                if (idx != inputs.length - 1) {
+                    inputs[idx + 1].focus();
+                }
+                drawRect();
+                return false;
+            }
+        }
+    });
+
+
+    function loadBox() {
+        delAllRow();
+        var text = $("#boxText").val().trim().replace(/[\r\n]/g, "").replace(/[ ]/g, "");
+        if (text) {
+            for (var i = 1; i <= text.length; i++) {
+                addRow();
+                $(".char" + i).val(text[i - 1]);
+            }
+        }
+    }
+
+    function addRow() {
+        trCnt++;
+        $('#boxTable > tbody').append('<tr class="addTr tr' + trCnt + '">' +
+            '<td><input class="tt char' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="tt x-left-top' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="tt y-left-top' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="tt x-right-bottom' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td><input class="tt y-right-bottom' + trCnt + '" type="text" onchange="drawRect()"></td>' +
+            '<td hidden>' + trCnt + '</td></tr>');
+    }
+
+    function delRow() {
+        if ($("#boxTable tr").length > 1) {
+            trCnt--;
+            $("#boxTable tr:last").remove();
+            changeBoxArea();
+        }
+        drawRect();
+    }
+
+    function delAllRow() {
+        if ($("#boxTable tr").length > 1) {
+            trCnt = 0;
+            $("#boxTable .addTr").remove();
+        }
+        drawRect();
+    }
+
+    function changeBoxArea() {
+        var c = $("#boxText").val().replace(/[\r\n]/g, "").replace(/[ ]/g, "");
+        if (c && trCnt > 0) {
+            $("#boxText").val(c.substr(0, trCnt));
+        } else {
+            $("#boxText").val('');
+        }
     }
 
     function drawXAxis(tickCntW, tickSize) {
@@ -253,44 +299,23 @@
     }
 
 
-    function addRow() {
-        trCnt++;
-        $('#boxTable > tbody').append('<tr class="addTr tr' + trCnt + '"><td><input class="char' + trCnt +
-            '" type="text" onchange="drawRect()"></td>' +
-            '<td><input class="x-left-top' + trCnt + '" type="text" onchange="drawRect()"></td>' +
-            '<td><input class="y-left-top' + trCnt + '" type="text" onchange="drawRect()"></td>' +
-            '<td><input class="x-right-bottom' + trCnt + '" type="text" onchange="drawRect()"></td>' +
-            '<td><input class="y-right-bottom' + trCnt + '" type="text" onchange="drawRect()"></td>' +
-            '<td hidden>' + trCnt + '</td></tr>');
-    }
-
-    function delRow() {
-        if ($("#boxTable tr").length > 1) {
-            trCnt--;
-            $("#boxTable tr:last").remove();
-        }
-        drawRect();
-    }
-
-    function delAllRow() {
-        if ($("#boxTable tr").length > 1) {
-            trCnt = 0;
-            $("#boxTable .addTr").remove();
-        }
-        drawRect();
-    }
-
-
     function drawRect() {
         getDataInfo();
         var size = boxData.length;
+        var c = "";
         context2.clearRect(0, 0, 1000, 750);
         var height = $("#canvasImg").height();
         for (var i = 0; i < size; i++) {
             var data = boxData[i];
+            if (data.char) {
+                c += data.char;
+            }
             if (data.x > 0 && data.y > 0 && data.w > 0 && data.h > 0) {
                 context2.strokeRect(data.x, height - data.h, data.w - data.x, data.h - data.y);
             }
+        }
+        if (c) {
+            $("#boxText").val(c);
         }
     }
 
@@ -300,9 +325,11 @@
             var data = {};
             data.char = $(".char" + i).val();
             data.x = $(".x-left-top" + i).val();
-            data.y = ($("#canvasImg").height() - $(".y-right-bottom" + i).val()) + "";
+            var yRigthBottom = $(".y-right-bottom" + i).val();
+            data.y = ($("#canvasImg").height() - ((yRigthBottom == "") ? 0 : yRigthBottom)) + "";
             data.w = $(".x-right-bottom" + i).val();
-            data.h = ($("#canvasImg").height() - $(".y-left-top" + i).val()) + "";
+            var yLeftTop = $(".y-left-top" + i).val();
+            data.h = ($("#canvasImg").height() - ((yLeftTop == "") ? 0 : yLeftTop)) + "";
             boxData.push(data);
         }
 
@@ -323,9 +350,9 @@
             async: false,
             success: function (result) {
                 if (result.msg == 'ok') {
-                    alert("gen box success!");
+                    $.notify("gen box success!", "success");
                 } else {
-                    alert("gen box fail, try again!");
+                    $.notify("gen box fail, try again!", "success");
                 }
                 console.log(result);
             }
@@ -344,10 +371,10 @@
             success: function (result) {
                 console.log(result);
                 if (result.msg = "success") {
-                    alert("train success!");
+                    $.notify("train success!", "success");
                     window.location.href = "toTessFilePage";
                 } else {
-                    alert("train fail, try again!");
+                    $.notify("train fail, try again!", "error");
                 }
             }
         })

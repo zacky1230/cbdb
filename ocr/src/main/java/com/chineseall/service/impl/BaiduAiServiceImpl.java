@@ -1,4 +1,4 @@
-package com.chineseall.service.Impl;
+package com.chineseall.service.impl;
 
 import com.chineseall.dao.FileUploadServiceDao;
 import com.chineseall.entity.UploadFileInfo;

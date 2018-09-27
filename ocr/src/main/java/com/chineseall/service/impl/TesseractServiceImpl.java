@@ -1,4 +1,4 @@
-package com.chineseall.service.Impl;
+package com.chineseall.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;

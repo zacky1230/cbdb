@@ -1,4 +1,4 @@
-package com.chineseall.service.Impl;
+package com.chineseall.service.impl;
 
 import com.chineseall.dao.FileUploadServiceDao;
 import com.chineseall.entity.UploadFileInfo;
@@ -84,7 +84,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public UploadPngTifInfo saveTrainTessFile(MultipartFile file, String lang, String fontFamily, String text) {
+    public UploadPngTifInfo saveTrainTessFile(MultipartFile file, String lang, String fontFamily) {
         if (file.isEmpty()) {
             return null;
         }
@@ -115,7 +115,6 @@ public class FileUploadServiceImpl implements FileUploadService {
         info.setTimeStamp(currentTime);
         info.setPngFileName(pngFileName);
         info.setTifFileName(tifFileName);
-        info.setPicText("");
         fileUploadServiceDao.add(info);
 
         return info;
