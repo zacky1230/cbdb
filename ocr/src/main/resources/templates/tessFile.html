@@ -2,55 +2,138 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload File</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>訓練圖片上傳測試頁面</title>
+    <link rel="stylesheet" href="/css/bulma.min.css">
+    <link rel="stylesheet" href="/css/col.css">
 </head>
 <body>
-<div>
-    <button onclick="showTrain()">训练</button>
-    <button onclick="showTest()">测试</button>
-</div>
-<form id="trainForm" action="trainTessFile" method="post" enctype="multipart/form-data">
-    训练语言<input name="lang" placeholder="lang" value="chiTra">
-    训练字体<input name="fontFamily" placeholder="fontFamily" value="SimSun">
-    <input type="submit" value="提交">
-    <h1>Upload Png Picture</h1>
-    <input id="pngFile" type="file" name="fileName">
-    <!--<h1>Upload Tif Picture</h1>
-    <input id="tifFile" type="file" name="fileName">-->
-</form>
+<div class="container">
+    <div class="navbar" style="margin-top: 5%;">
+        <div class="columns">
+            <div class="column"><a class="button is-primary" onclick="showTrain()">訓練</a></div>
+            <div class="column"><a class="button is-info" onclick="showTest()">測試</a></div>
+        </div>
+    </div>
+    <div class="hero">
+        <div class="columns">
+            <div class="column">
+                <form id="trainForm" class="control" action="trainTessFile" method="post"
+                      enctype="multipart/form-data" onsubmit="return checkElement()">
+                    <div class="field">
+                        <label class="label">訓練語言</label>
+                        <input id="langT" class="input" type="text" placeholder="請輸入訓練語言" name="lang" value="chiTra">
+                    </div>
 
-<div id="testForm">
-    <form method="post" enctype="multipart/form-data">
-        测试语言<input id="lang" name="lang" placeholder="lang" value="chiTra">
-        <input type="button" id="submit" value="提交">
-        <h1>Upload Png Picture</h1>
-        <input id="pngF" type="file" class="img-btn" name="fileName">
-    </form>
-    <textarea style="width: 600px;height: 400px;" id="result">
+                    <div class="field">
+                        <label class="label">訓練字體</label>
+                        <input id="fontT" type="text" class="input" placeholder="請輸入訓練字體" name="fontFamily"
+                               value="SimSun">
+                    </div>
 
-    </textarea>
+                    <div class="field">
+                        <label class="label">上傳圖片(支持 PNG 格式)</label>
+                        <div class="file">
+                            <label class="file-label">
+                                <input id="pngFile" class="file-input" type="file" name="fileName">
+                                <span class="file-cta">
+                                <span class="file-icon">
+                                <i class="fas fa-upload"></i>
+                              </span>
+                              <span class="file-label">
+                                請選擇上傳的圖片…
+                              </span>
+                            </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <input class="button is-primary" type="submit" value="提交">
+                    </div>
+                </form>
+            </div>
+            <div class="column">
+                <form id="testForm" class="control" method="post" enctype="multipart/form-data" hidden>
+                    <div class="field">
+                        <label class="label">測試語言</label>
+                        <input id="lang" class="input" name="lang" placeholder="請輸入測試語言" value="chiTra">
+                    </div>
+                    <div class="field">
+                        <input class="button is-info" type="button" id="submit" value="提交">
+                    </div>
+                    <div class="field">
+                        <label class="label">上傳圖片(支持 PNG 格式)</label>
+                    </div>
+                    <div class="file">
+                        <label class="file-label">
+                            <input id="pngF" class="file-input img-btn" type="file" name="fileName">
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                <i class="fas fa-upload"></i>
+                              </span>
+                              <span class="file-label">
+                                請選擇上傳的圖片…
+                              </span>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="filed">
+                        <label class="label">測試訓練結果</label>
+                        <textarea style="width: 600px;height: 400px;" id="result" class="textarea"></textarea>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
 </div>
 
 
 </body>
 <script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/notify.min.js"></script>
+<script src="/js/col.js?v=0.1"></script>
 <script>
 
-    window.onload = function () {
-        document.getElementById("testForm").style.visibility = "hidden";
-    }
+    $(document).ready(function () {
+        $("#testForm").hide();
+    });
 
     function showTrain() {
-        document.getElementById("trainForm").style.visibility = "visible";
-        document.getElementById("testForm").style.visibility = "hidden";
+        $("#trainForm").show();
+        $("#testForm").hide();
     }
 
     function showTest() {
-        document.getElementById("testForm").style.visibility = "visible";
-        document.getElementById("trainForm").style.visibility = "hidden";
+        $("#trainForm").hide();
+        $("#testForm").show();
     }
 
+    function checkElement() {
+        if (inputIsNull("langT")) {
+            $.notify("請輸入訓練語言，謝謝！", "info");
+            return false;
+        }
+        if (inputIsNull("fontT")) {
+            $.notify("請輸入訓練字體，謝謝！", "info");
+            return false;
+        }
+        if (!isUploadFile("pngFile")) {
+            $.notify("請上傳文件，謝謝！", "info");
+            return false;
+        }
+    }
+
+
     $("#submit").click(function () {
+        if (inputIsNull("lang")) {
+            $.notify("請輸入訓練語言，謝謝！", "info");
+            return false;
+        }
+        if (!isUploadFile("pngF")) {
+            $.notify("請上傳文件，謝謝！", "info");
+            return false;
+        }
         var a = new FormData();
         a.append("fileName", $(".img-btn")[0].files[0]);
         a.append("lang", $("#lang").val());

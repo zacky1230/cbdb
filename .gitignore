@@ -1,0 +1,6 @@
+cbdb.iml
+.idea/
+common/common.iml
+common/target/
+ocr/ocr.iml
+ocr/target/

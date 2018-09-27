@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>
-        Tess Box Editor
-    </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/bulma.min.css">
+    <title>Tess Box Editor</title>
 </head>
 <style>
     #canvas1 {
@@ -36,12 +37,10 @@
     }
 
     #boxInfo {
-        margin-right: 3%;
+        margin: 0 3%;
         float: right;
-        width: 350px;
-        height: 600px;
+        height: 770px;
         border: 1px solid;
-        overflow: auto;
     }
 
     table {
@@ -69,59 +68,77 @@
         cursor: pointer;
     }
 
-    #textInput {
-        width: 500px;
-        height: 100px;
-        border: 1px solid;
-        position: absolute;
-        float: right;
-        bottom: 0px;
-    }
 </style>
 <body onload="pageLoad()" style="margin:0px;">
 <div>
-    <div id="imgShow">
-        <img id="canvasImg">
-        <canvas id="canvas1" width="1020" height="610"></canvas>
-        <canvas id="canvas2" width="1000" height="600"></canvas>
-        <canvas id="canvas" width="1000" height="600"></canvas>
-    </div>
-    <div id="boxInfo">
-        <button type="button" name="button" style="margin:20px 0 20px 0;position: relative;left: 20%;"
-                onclick="addRow()">
-            AddRow
-        </button>
-        <button type="button" name="button" style="margin:20px 0 20px 0;position: relative;left: 20%;"
-                onclick="delRow()">
-            DelLastRow
-        </button>
-        <button id="submit" type="submit" style="position: relative;left:20%;">gen box</button>
-        <button id="train" type="submit" style="position: relative;left:20%;">train</button>
-
-
-        <div style="display: inline-block;width: 300px;padding-left: 30%;padding-bottom: 10px;">
-            <label>x:</label><input type="text" id="xAxis" style="width: 100px;display: inline;">
-            <label>y:</label><input type="text" id="yAxis" style="width: 100px;display: inline;">
+    <div class="columns">
+        <div id="imgShow" class="column is-10">
+            <img id="canvasImg">
+            <canvas id="canvas1" width="1020" height="760"></canvas>
+            <canvas id="canvas2" width="1000" height="750"></canvas>
+            <canvas id="canvas" width="1000" height="750"></canvas>
         </div>
+        <div id="boxInfo" class="column">
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <button type="button" class="button is-primary" style="margin: 5%;position: relative;"
+                            onclick="addRow()">
+                        新增行
+                    </button>
+                </div>
+                <div class="column is-one-quarter">
+                    <button type="button" class="button is-primary" style="margin: 5%;position: relative;"
+                            onclick="delRow()">
+                        刪除行
+                    </button>
+                </div>
+                <div class="column is-one-quarter">
+                    <button class="button is-primary" id="submit" type="submit" style="margin: 5%;position: relative;">
+                        生成文件
+                    </button>
+                </div>
+                <div class="column is-one-quarter">
+                    <button class="button is-primary" id="train" type="submit" style="margin: 5%;position: relative;">訓練
+                    </button>
+                </div>
+            </div>
 
-        <form class="" method="post">
-            <table id="boxTable">
-                <tr>
-                    <td>value</td>
-                    <td>x[左上]</td>
-                    <td>y[左上]</td>
-                    <td>x[右下]</td>
-                    <td>y[右下]</td>
-                    <td>operate</td>
-                </tr>
-            </table>
+            <div class="columns">
+                <div class="column is-one-quarter" style="padding-left: 20px;">
+                    <label class="label">x 坐標：</label>
+                </div>
+                <div class="column is-one-quarter">
+                    <input type="text" id="xAxis" value="0px" style="display: inline;">
+                </div>
+                <div class="column is-one-quarter" style="padding-left: 20px;">
+                    <label class="label">y 坐標：</label>
+                </div>
+                <div class="column is-one-quarter">
+                    <input type="text" id="yAxis" value="0px" style="display: inline;">
+                </div>
+            </div>
 
-        </form>
+            <div style="overflow-y: auto;height: 450px;">
+                <table id="boxTable">
+                    <tr>
+                        <td>內容</td>
+                        <td>x[左上]</td>
+                        <td>y[左上]</td>
+                        <td>x[右下]</td>
+                        <td>y[右下]</td>
+                        <td hidden>序列</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="filed">
+                <label class="label">請輸入圖片中的文字</label>
+                <textarea style="width: 92%;height: 100px;" id="boxText" class="textarea"
+                          onblur="refreshBox()"></textarea>
+            </div>
+        </div>
     </div>
-    <div id="textInput">
-        <span>Please input image text。</span>
-        <textarea id="boxText" onblur="refreshBox()" style="height: 80px;width: 498px;"></textarea>
-    </div>
+
     <span id="timeStamp" th:text="${info.timeStamp}" hidden></span>
     <span id="picText" th:text="${info.picText}" hidden></span>
 </div>
@@ -136,7 +153,6 @@
     var boxData = [];
 
     $(document).ready(function () {
-        //load picture in canvas
         if ($("#timeStamp").text()) {
             var timeStamp = $("#timeStamp").text();
             var url = "/image/get/" + timeStamp;
@@ -155,7 +171,6 @@
                 }
             })
         }
-
         loadText();
     });
 
@@ -195,8 +210,8 @@
             var xx = e.clientX - bbox.left;
             var yy = e.clientY - bbox.top;
 
-            $("#xAxis").val(xx);
-            $("#yAxis").val(yy);
+            $("#xAxis").val(xx + 'px');
+            $("#yAxis").val(yy + 'px');
         };
 
         drawXAxis(tickCntW, tickSize);
@@ -246,7 +261,7 @@
             '<td><input class="y-left-top' + trCnt + '" type="text" onchange="drawRect()"></td>' +
             '<td><input class="x-right-bottom' + trCnt + '" type="text" onchange="drawRect()"></td>' +
             '<td><input class="y-right-bottom' + trCnt + '" type="text" onchange="drawRect()"></td>' +
-            '<td>' + trCnt + '</td></tr>');
+            '<td hidden>' + trCnt + '</td></tr>');
     }
 
     function delRow() {
@@ -269,7 +284,7 @@
     function drawRect() {
         getDataInfo();
         var size = boxData.length;
-        context2.clearRect(0, 0, 1000, 600);
+        context2.clearRect(0, 0, 1000, 750);
         var height = $("#canvasImg").height();
         for (var i = 0; i < size; i++) {
             var data = boxData[i];

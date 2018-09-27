@@ -39,6 +39,7 @@ public class ImageMagickUtil {
         op.monochrome();
         op.pointsize(2);
         op.depth(8);
+        op.quality(300.0);
         op.addImage(out);
         // execute the operation
         cmd.run(op);

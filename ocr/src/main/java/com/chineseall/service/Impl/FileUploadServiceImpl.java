@@ -4,10 +4,8 @@ import com.chineseall.dao.FileUploadServiceDao;
 import com.chineseall.entity.UploadFileInfo;
 import com.chineseall.entity.UploadPngTifInfo;
 import com.chineseall.service.FileUploadService;
-import com.chineseall.util.GenUuid;
-import com.chineseall.util.ResultUtil;
-import com.chineseall.util.RetMsg;
-import com.chineseall.util.TimeUtil;
+import com.chineseall.util.*;
+import org.im4java.core.IM4JavaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -93,15 +91,21 @@ public class FileUploadServiceImpl implements FileUploadService {
         long currentTime = TimeUtil.getCurrentTimeStamp();
 
 
-        String fileName = file.getOriginalFilename();
-        String saveFileName = lang + "." + fontFamily + "." + currentTime;
-        if (fileName.contains("png")) {
-            saveFileName = saveFileName + ".png";
-        } else {
-            saveFileName = saveFileName + ".tif";
-        }
+        String pngFileName = lang + "." + fontFamily + "." + currentTime + ".png";
+        String tifFileName = lang + "." + fontFamily + "." + currentTime + ".tif";
 
-        saveFile(file, saveFileName, currentTime);
+        saveFile(file, pngFileName, currentTime);
+
+        try {
+            ImageMagickUtil.pngToTif(fileUploadPath + File.separator + currentTime + File.separator + pngFileName,
+                    fileUploadPath + File.separator + currentTime + File.separator + tifFileName);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IM4JavaException e) {
+            e.printStackTrace();
+        }
 
         UploadPngTifInfo info = new UploadPngTifInfo();
 
@@ -109,8 +113,8 @@ public class FileUploadServiceImpl implements FileUploadService {
         info.setFontFamily(fontFamily);
         info.setLang(lang);
         info.setTimeStamp(currentTime);
-        info.setPngFileName(saveFileName + ".png");
-        info.setTifFileName(saveFileName + ".tif");
+        info.setPngFileName(pngFileName);
+        info.setTifFileName(tifFileName);
         info.setPicText("");
         fileUploadServiceDao.add(info);
 
