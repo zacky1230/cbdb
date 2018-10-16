@@ -44,4 +44,10 @@ public class PageController {
         logger.info("show tessFile page");
         return "tessFile";
     }
+
+    @RequestMapping(value = "toSvgFilePage", method = RequestMethod.GET)
+    public String toSvgFilePage() {
+        logger.info("show svg upload page");
+        return "svg";
+    }
 }

@@ -35,11 +35,12 @@ public class ImageMagickUtil {
         // create the operation, add images and operators/options
         IMOperation op = new IMOperation();
         op.addImage(in);
-        op.compose("none");
+        op.compress("None");
         op.monochrome();
         op.pointsize(2);
         op.depth(8);
-        op.quality(300.0);
+        op.density(300);
+        op.units("PixelsPerInch");
         op.addImage(out);
         // execute the operation
         cmd.run(op);

@@ -1,6 +1,9 @@
 package com.chineseall.util;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -16,6 +19,8 @@ import static com.alibaba.fastjson.util.IOUtils.close;
  * Created by zacky on 17:35.
  */
 public class FileUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     /**
      * 以字节为单位读取文件，常用于读二进制文件，如图片、声音、影像等文件。
@@ -38,7 +43,7 @@ public class FileUtil {
             if (in != null) {
                 try {
                     in.close();
-                } catch (IOException e1) {
+                } catch (IOException ignored) {
                 }
             }
         }
@@ -54,13 +59,11 @@ public class FileUtil {
         File file = new File(fileName);
         InputStream in = null;
         try {
-            System.out.println("以字节为单位读取文件内容，一次读多个字节：");
-            // 一次读多个字节
+            logger.info("以字节为单位读取文件内容，一次读多个字节：");
             byte[] tempbytes = new byte[100];
             int byteread = 0;
             in = new FileInputStream(file);
             showAvailableBytes(in);
-            // 读入多个字节到字节数组中，byteread为一次读入的字节数
             while ((byteread = in.read(tempbytes)) != -1) {
                 System.out.write(tempbytes, 0, byteread);
             }
@@ -81,61 +84,15 @@ public class FileUtil {
      *
      * @param fileName 文件名
      */
-    public static void readFileByChar(String fileName) {
-        File file = new File(fileName);
-        Reader reader = null;
-
-        try {
-            System.out.println("以字符为单位读取文件内容，一次读多个字节：");
-            // 一次读多个字符
-            char[] tempchars = new char[30];
-            int charread = 0;
-            reader = new InputStreamReader(new FileInputStream(file));
-            // 读入多个字符到字符数组中，charread为一次读取字符数
-            while ((charread = reader.read(tempchars)) != -1) {
-                // 同样屏蔽掉r不显示
-                if ((charread == tempchars.length)
-                        && (tempchars[tempchars.length - 1] != 'r')) {
-                    System.out.print(tempchars);
-                } else {
-                    for (int i = 0; i < charread; i++) {
-                        if (tempchars[i] == 'r') {
-                            continue;
-                        } else {
-                            System.out.print(tempchars[i]);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
-            }
-        }
-    }
-
-    /**
-     * 以字符为单位读取文件，常用于读文本，数字等类型的文件
-     *
-     * @param fileName 文件名
-     */
     public static void readFileByChars(String fileName) {
         File file = new File(fileName);
         Reader reader = null;
         try {
-            System.out.println("以字符为单位读取文件内容，一次读多个字节：");
-            // 一次读多个字符
+            logger.info("以字符为单位读取文件内容，一次读多个字节：");
             char[] tempchars = new char[30];
             int charread = 0;
             reader = new InputStreamReader(new FileInputStream(file));
-            // 读入多个字符到字符数组中，charread为一次读取字符数
             while ((charread = reader.read(tempchars)) != -1) {
-                // 同样屏蔽掉r不显示
                 if ((charread == tempchars.length)
                         && (tempchars[tempchars.length - 1] != 'r')) {
                     System.out.print(tempchars);
@@ -170,14 +127,12 @@ public class FileUtil {
         File file = new File(fileName);
         BufferedReader reader = null;
         try {
-            System.out.println("以行为单位读取文件内容，一次读一整行：");
+            logger.info("以行为单位读取文件内容，一次读一整行：");
             reader = new BufferedReader(new FileReader(file));
-            String tempString = null;
+            String tempString;
             int line = 1;
-            // 一次读入一行，直到读入null为文件结束
             while ((tempString = reader.readLine()) != null) {
-                // 显示行号
-                System.out.println("line " + line + ": " + tempString);
+                logger.info(String.format("The line %s : ", line, tempString));
                 line++;
             }
             reader.close();
@@ -201,19 +156,13 @@ public class FileUtil {
     public static void readFileByRandomAccess(String fileName) {
         RandomAccessFile randomFile = null;
         try {
-            System.out.println("随机读取一段文件内容：");
-            // 打开一个随机访问文件流，按只读方式
+            logger.info("随机读取一段文件内容：");
             randomFile = new RandomAccessFile(fileName, "r");
-            // 文件长度，字节数
             long fileLength = randomFile.length();
-            // 读文件的起始位置
             int beginIndex = (fileLength > 4) ? 4 : 0;
-            // 将读文件的开始位置移到beginIndex位置。
             randomFile.seek(beginIndex);
             byte[] bytes = new byte[10];
             int byteread = 0;
-            // 一次读10个字节，如果文件内容不足10个字节，则读剩下的字节。
-            // 将一次读取的字节数赋给byteread
             while ((byteread = randomFile.read(bytes)) != -1) {
                 System.out.write(bytes, 0, byteread);
             }
@@ -236,7 +185,7 @@ public class FileUtil {
      */
     private static void showAvailableBytes(InputStream in) {
         try {
-            System.out.println("当前字节输入流中的字节数为:" + in.available());
+            logger.info(String.format("当前字节输入流中的字节数为:", in.available()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -252,11 +201,8 @@ public class FileUtil {
                                                       String content) {
         System.out.println("RandomAccessFile追加文件");
         try {
-            // 打开一个随机访问文件流，按读写方式
             RandomAccessFile randomFile = new RandomAccessFile(fileName, "rw");
-            // 文件长度，字节数
             long fileLength = randomFile.length();
-            // 将写文件指针移到文件尾。
             randomFile.seek(fileLength);
             randomFile.writeBytes(content);
             randomFile.close();
@@ -274,7 +220,6 @@ public class FileUtil {
     public static void appendMethodByFileWriter(String fileName, String content) {
         System.out.println("appendMethodByFileWriter");
         try {
-            // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
             FileWriter writer = new FileWriter(fileName, true);
             writer.write(content);
             writer.close();
@@ -342,7 +287,7 @@ public class FileUtil {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));
-            String tempString = null;
+            String tempString;
             do {
                 tempString = reader.readLine();
                 if (StringUtils.isNotEmpty(tempString)) {
@@ -445,6 +390,12 @@ public class FileUtil {
         }
     }
 
+    /**
+     * 获取父亲目录
+     *
+     * @param f
+     * @return
+     */
     public static String getParentDirectory(String f) {
         File file = new File(f);
         if (file.exists()) {
@@ -458,6 +409,13 @@ public class FileUtil {
     }
 
 
+    /**
+     * 根据扩展名查询文件
+     *
+     * @param directory
+     * @param suffix
+     * @return
+     */
     public static List<String> getFilesBySuffix(String directory, String suffix) {
         List<String> files = getFiles(directory);
 
@@ -473,6 +431,12 @@ public class FileUtil {
         return newFiles;
     }
 
+    /**
+     * 获取文件目录下的文件名
+     *
+     * @param path
+     * @return
+     */
     public static ArrayList<String> getFiles(String path) {
         ArrayList<String> files = new ArrayList<>();
         File file = new File(path);
@@ -486,6 +450,49 @@ public class FileUtil {
             }
         }
         return files;
+    }
+
+    /**
+     * 读取文件返回 String
+     *
+     * @param fileName
+     * @return
+     */
+    public static String readToString(String fileName) {
+        String encoding = "UTF-8";
+        File file = new File(fileName);
+        Long filelength = file.length();
+        byte[] filecontent = new byte[filelength.intValue()];
+        try {
+            FileInputStream in = new FileInputStream(file);
+            in.read(filecontent);
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            return new String(filecontent, encoding);
+        } catch (UnsupportedEncodingException e) {
+            System.err.println("The OS does not support " + encoding);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 获取当前目录下文件名
+     *
+     * @param realPath
+     * @return
+     */
+    public static String getFileName(String realPath) {
+        File file = new File(realPath);
+        if (file.exists()) {
+            return file.getName();
+        }
+        return null;
     }
 
     public static void main(String[] args) throws IOException {
@@ -518,9 +525,11 @@ public class FileUtil {
         FileUtil.convertToTiff(inputPath, ouputPath);*/
         //FileUtil.writeToFile("/Users/zacky/Desktop/tess/fontf", new String[]{"Sim", "Sim"}, 2);
 
-        List<String> list = FileUtil.getFilesBySuffix("/Users/zacky/Desktop/work/upload/boxtr", "box");
-        System.out.println(list.size());
+        /*List<String> list = FileUtil.getFilesBySuffix("/Users/zacky/Desktop/work/upload/boxtr", "box");
+        System.out.println(list.size());*/
+//        System.out.println(getFileName("/Users/zacky/Desktop/PicHandle/original.tif"));
         //FileUtil.moveFile("/Users/zacky/Desktop/work/upload/1536736913851", "chiTra.SimSun.1536736913851");
     }
+
 
 }

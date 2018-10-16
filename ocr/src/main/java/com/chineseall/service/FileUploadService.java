@@ -21,4 +21,6 @@ public interface FileUploadService {
     UploadPngTifInfo saveTrainTessFile(MultipartFile file, String lang, String fontFamily);
 
     String getTifFilePathByTimeStamp(String timeStamp);
+
+    String saveOcrImage(MultipartFile file, String type);
 }

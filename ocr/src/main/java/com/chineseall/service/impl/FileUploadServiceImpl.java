@@ -29,6 +29,27 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Autowired
     private FileUploadServiceDao fileUploadServiceDao;
 
+
+    @Override
+    public String saveOcrImage(MultipartFile file, String type) {
+        String fileName = file.getOriginalFilename();
+
+        String todayString = TimeUtil.getTodayToString();
+        String extension = fileName.split("\\.")[1];
+        String saveFileName = GenUuid.getUUID32() + "." + extension;
+        if ("1".equals(type)) {
+            todayString = todayString + File.separator + "1";
+        } else if ("2".equals(type)) {
+            todayString = todayString + File.separator + "2";
+        }
+
+        if (saveFile(file, saveFileName, todayString, fileName)) {
+            return fileUploadPath + File.separator + todayString + File.separator + saveFileName;
+        } else {
+            return "fail";
+        }
+    }
+
     @Override
     public RetMsg saveSingleFile(MultipartFile file) {
 
@@ -166,7 +187,7 @@ public class FileUploadServiceImpl implements FileUploadService {
          *  判断文件父目录是否存在
          */
         if (!dest.getParentFile().exists()) {
-            dest.getParentFile().mkdir();
+            dest.getParentFile().mkdirs();
         }
         /**
          * 保存文件

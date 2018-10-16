@@ -3,6 +3,7 @@ package com.chineseall.controller;
 import com.chineseall.entity.UploadPngTifInfo;
 import com.chineseall.service.BaiduAiService;
 import com.chineseall.service.FileUploadService;
+import com.chineseall.service.OcrHandleService;
 import com.chineseall.util.RetMsg;
 import com.chineseall.util.StringUtils;
 import org.slf4j.Logger;
@@ -46,6 +47,9 @@ public class FileUploadController {
 
     @Autowired
     private BaiduAiService baiduAiService;
+
+    @Autowired
+    private OcrHandleService ocrHandleService;
 
     private Logger logger = LoggerFactory.getLogger(FileUploadController.class);
 
@@ -183,4 +187,5 @@ public class FileUploadController {
         BASE64Encoder encoder = new BASE64Encoder();
         return encoder.encode(data);
     }
+
 }

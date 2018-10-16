@@ -56,8 +56,13 @@ public class RetMsg<T> {
     }
 
     public void fail() {
-        this.code = 200;
+        this.code = 400;
         this.msg = "fail";
+    }
+
+    public void fail(String msg) {
+        this.code = 400;
+        this.msg = msg;
     }
 
 }
