@@ -5,7 +5,7 @@ import com.chineseall.entity.UploadFileInfo;
 import com.chineseall.service.BaiduAiService;
 import com.chineseall.util.BaiduApiUtil;
 import com.chineseall.util.FileUtil;
-import com.chineseall.util.PictureUtils;
+import com.chineseall.util.ImageUtils;
 import com.chineseall.util.RetMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +91,7 @@ public class BaiduAiServiceImpl implements BaiduAiService {
 
             File file = new File(filePath);
 
-            ArrayList<BufferedImage> bufferedImages = PictureUtils.cutImage(filePath, row, column, xIndex, yIndex,
+            ArrayList<BufferedImage> bufferedImages = ImageUtils.cutImage(filePath, row, column, xIndex, yIndex,
                     gapStart, gapEnd, rowsRight, columnRight, yIndexRigth, height);
             String format = FileUtil.getSuffix(file.getName());
             String accessToken;

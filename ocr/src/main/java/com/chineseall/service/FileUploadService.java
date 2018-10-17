@@ -4,8 +4,8 @@ import com.chineseall.entity.UploadPngTifInfo;
 import com.chineseall.util.RetMsg;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author gy1zc3@gmail.com
@@ -22,5 +22,5 @@ public interface FileUploadService {
 
     String getTifFilePathByTimeStamp(String timeStamp);
 
-    String saveOcrImage(MultipartFile file, String type);
+    Map<String, Object> saveOcrImage(MultipartFile file, String type);
 }

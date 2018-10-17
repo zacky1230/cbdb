@@ -22,9 +22,9 @@ import java.util.Map;
  * @author gy1zc3@gmail.com
  * Created by zacky on 09:43.
  */
-public class PictureUtils {
+public class ImageUtils {
 
-    private static Logger logger = LoggerFactory.getLogger(PictureUtils.class);
+    private static Logger logger = LoggerFactory.getLogger(ImageUtils.class);
 
 
     /**
@@ -82,6 +82,40 @@ public class PictureUtils {
     }
 
     /**
+     * 等比例切割图片
+     *
+     * @param page
+     * @param column
+     * @param yIndex
+     * @param imagePath
+     * @return
+     */
+    public static ArrayList<BufferedImage> cutImage(int page, int column, int[] yIndex, String imagePath) {
+
+        ArrayList<BufferedImage> images = new ArrayList<>();
+        if (StringUtils.isEmpty(imagePath)) {
+            return images;
+        }
+
+        if ((page * 2) != yIndex.length) {
+            return images;
+        }
+        try {
+            BufferedImage image = ImageIO.read(new File(imagePath));
+
+            if (page == 1) {
+                getBufferedImage(images, image, column, yIndex[0], yIndex[1]);
+            } else {
+                getBufferedImage(images, image, column / 2, yIndex[0], yIndex[1]);
+                getBufferedImage(images, image, column / 2, yIndex[2], yIndex[3]);
+            }
+        } catch (Exception e) {
+
+        }
+        return images;
+    }
+
+    /**
      * 切割图片
      *
      * @param src
@@ -133,6 +167,15 @@ public class PictureUtils {
         return list;
     }
 
+    private static ArrayList<BufferedImage> getBufferedImage(ArrayList<BufferedImage> images, BufferedImage image, int column, int startY, int endY) {
+        int imageHeigth = image.getHeight();
+        int lw = (endY - startY) / column;
+        for (int i = 0; i < column; i++) {
+            BufferedImage bufferedImage = image.getSubimage(startY + (i * lw), 0, lw, imageHeigth);
+            images.add(bufferedImage);
+        }
+        return images;
+    }
 
     private static ArrayList<BufferedImage> getBufferedImage(ArrayList<BufferedImage> list, BufferedImage img, int
             rows, int cols, int xIndex, int yIndex) {
@@ -182,4 +225,6 @@ public class PictureUtils {
             number++;
         }
     }
+
+
 }

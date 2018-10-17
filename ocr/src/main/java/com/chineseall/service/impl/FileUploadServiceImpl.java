@@ -8,13 +8,17 @@ import com.chineseall.util.*;
 import org.im4java.core.IM4JavaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author gy1zc3@gmail.com
@@ -29,24 +33,36 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Autowired
     private FileUploadServiceDao fileUploadServiceDao;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
 
     @Override
-    public String saveOcrImage(MultipartFile file, String type) {
+    public Map<String, Object> saveOcrImage(MultipartFile file, String type) {
+        Map<String, Object> retMap = new HashMap<>();
         String fileName = file.getOriginalFilename();
 
         String todayString = TimeUtil.getTodayToString();
         String extension = fileName.split("\\.")[1];
-        String saveFileName = GenUuid.getUUID32() + "." + extension;
+        String uuid = GenUuid.getUUID32();
+        String saveFileName = uuid + "." + extension;
         if ("1".equals(type)) {
             todayString = todayString + File.separator + "1";
         } else if ("2".equals(type)) {
             todayString = todayString + File.separator + "2";
         }
 
-        if (saveFile(file, saveFileName, todayString, fileName)) {
-            return fileUploadPath + File.separator + todayString + File.separator + saveFileName;
+        String filePath = fileUploadPath + File.separator + todayString + File.separator + saveFileName;
+        if (saveImage(file, saveFileName, todayString, fileName, uuid, filePath)) {
+            retMap.put("msg", MessageCode.ImageUploadSuccess.getDescription());
+            retMap.put("code", MessageCode.ImageUploadSuccess.getCode());
+            retMap.put("filePath", filePath);
+            retMap.put("imageId", uuid);
+            return retMap;
         } else {
-            return "fail";
+            retMap.put("msg", MessageCode.ImageUploadFail.getDescription());
+            retMap.put("code", MessageCode.ImageUploadFail.getCode());
+            return retMap;
         }
     }
 
@@ -148,6 +164,20 @@ public class FileUploadServiceImpl implements FileUploadService {
             return info.getUploadDirectory() + File.separator + info.getPngFileName();
         }
         return null;
+    }
+
+    private boolean saveImage(MultipartFile file, String saveFileName, String todayString, String fileName, String
+            imageId, String filePath) {
+        return saveFile(file, saveFileName, todayString, fileName) && setValueToRedis(imageId, filePath);
+    }
+
+    private boolean setValueToRedis(String key, String value) {
+        value = value.replace(key, key + "_result");
+        redisTemplate.opsForValue().set(key, value, 12, TimeUnit.HOURS);
+        if (value.equals(redisTemplate.opsForValue().get(key))) {
+            return true;
+        }
+        return false;
     }
 
     private boolean saveFile(MultipartFile file, String saveFileName, long currentTime) {

@@ -1,19 +1,17 @@
 package com.chineseall.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.chineseall.service.FileUploadService;
 import com.chineseall.service.OcrHandleService;
+import com.chineseall.util.MessageCode;
 import com.chineseall.util.RetMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -44,21 +42,33 @@ public class OcrHandleController {
         RetMsg retMsg = new RetMsg();
 
         if (file.getContentType().indexOf("image") == -1) {
-            retMsg.fail("error file type!");
+            retMsg.fail(MessageCode.ImageFormatError.getDescription());
             return ResponseEntity.ok(retMsg);
         }
 
-        String realPath = fileUploadService.saveOcrImage(file, type);
+        Map<String, Object> map = fileUploadService.saveOcrImage(file, type);
 
-        Map<String, Object> map = new HashMap();
+        if (MessageCode.ImageUploadFail.getCode() == (int) map.get("code")) {
+            retMsg.fail(MessageCode.ImageUploadFail.getDescription());
+            return ResponseEntity.ok(retMsg);
+        }
         String page = request.getParameter("page");
         map.put("page", page);
-        map.put("column", request.getParameter("column"));
         map.put("type", request.getParameter("type"));
 
-        int[] data = ocrHandleService.ocrImageHandle(realPath, page);
-        retMsg.setData(data);
+        retMsg = ocrHandleService.ocrImageHandle(map);
 
+        return ResponseEntity.ok(retMsg);
+    }
+
+
+    /**
+     * @return
+     */
+    @RequestMapping(value = "/ocr/image/{type}")
+    @ResponseBody
+    public ResponseEntity imageRecognition(@RequestBody Map<String, Object> map) {
+        RetMsg retMsg = ocrHandleService.imageRecognition(map);
         return ResponseEntity.ok(retMsg);
     }
 }
