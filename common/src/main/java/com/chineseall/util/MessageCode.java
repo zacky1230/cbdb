@@ -14,6 +14,12 @@ public enum MessageCode {
      * image recognition success code 1002
      */
     ImageRecognitionSuccess("图片识别成功！", 1002),
+
+    /**
+     * image load success code 1003
+     */
+    ImageLoadSuccess("图片加载成功！", 1003),
+
     /**
      * image upload fail code 3001
      */

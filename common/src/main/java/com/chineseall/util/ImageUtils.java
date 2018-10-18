@@ -86,28 +86,28 @@ public class ImageUtils {
      *
      * @param page
      * @param column
-     * @param yIndex
+     * @param xAxes
      * @param imagePath
      * @return
      */
-    public static ArrayList<BufferedImage> cutImage(int page, int column, int[] yIndex, String imagePath) {
+    public static ArrayList<BufferedImage> cutImage(int page, int column, int[] xAxes, String imagePath) {
 
         ArrayList<BufferedImage> images = new ArrayList<>();
         if (StringUtils.isEmpty(imagePath)) {
             return images;
         }
 
-        if ((page * 2) != yIndex.length) {
+        if ((page * 2) != xAxes.length) {
             return images;
         }
         try {
             BufferedImage image = ImageIO.read(new File(imagePath));
 
             if (page == 1) {
-                getBufferedImage(images, image, column, yIndex[0], yIndex[1]);
+                getBufferedImage(images, image, column, xAxes[0], xAxes[1]);
             } else {
-                getBufferedImage(images, image, column / 2, yIndex[0], yIndex[1]);
-                getBufferedImage(images, image, column / 2, yIndex[2], yIndex[3]);
+                getBufferedImage(images, image, column / 2, xAxes[0], xAxes[1]);
+                getBufferedImage(images, image, column / 2, xAxes[2], xAxes[3]);
             }
         } catch (Exception e) {
 

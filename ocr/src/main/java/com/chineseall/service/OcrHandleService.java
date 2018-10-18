@@ -1,6 +1,7 @@
 package com.chineseall.service;
 
 import com.chineseall.util.RetMsg;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -13,4 +14,8 @@ public interface OcrHandleService {
     RetMsg ocrImageHandle(Map<String, Object> map);
 
     RetMsg imageRecognition(Map<String, Object> map);
+
+    RetMsg getHandlerImage(String imageId);
+
+    RetMsg imageUpload(MultipartFile file, String type, String page);
 }
