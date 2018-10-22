@@ -1,7 +1,11 @@
 package com.chineseall.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.chineseall.entity.UploadFileContext;
 import com.chineseall.service.OcrHandleService;
+import com.chineseall.util.MessageCode;
 import com.chineseall.util.RetMsg;
+import com.chineseall.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -53,6 +58,30 @@ public class OcrHandleController {
     @ResponseBody
     public ResponseEntity getHandlerImage(@PathVariable String imageId) {
         RetMsg retMsg = ocrHandleService.getHandlerImage(imageId);
+        return ResponseEntity.ok(retMsg);
+    }
+
+    /**
+     * 保存图片
+     */
+    @RequestMapping(value = "/ocr/save/{imageId}")
+    @ResponseBody
+    public ResponseEntity saveImageInfo(@PathVariable String imageId, @RequestBody Map<String, Object> map) {
+        UploadFileContext info = new UploadFileContext();
+        String context = (String) map.get("context");
+        LinkedHashMap<String, Object> coordinates = (LinkedHashMap) map.get("coordinate");
+        String coordinate = JSON.toJSONString(coordinates);
+        RetMsg retMsg = new RetMsg();
+        if (StringUtils.isEmpty(context) || StringUtils.isEmpty(coordinate.toString()) || StringUtils.isEmpty(imageId)) {
+            retMsg.setMsg(MessageCode.ParamIsError.getDescription());
+            retMsg.setCode(MessageCode.ParamIsError.getCode());
+            return ResponseEntity.ok(retMsg);
+        } else {
+            info.setFileId(imageId);
+            info.setContext(context);
+            info.setCoordinate(coordinate);
+        }
+        retMsg = ocrHandleService.saveImageInfo(imageId, info);
         return ResponseEntity.ok(retMsg);
     }
 

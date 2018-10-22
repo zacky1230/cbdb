@@ -1,5 +1,6 @@
 package com.chineseall.dao;
 
+import com.chineseall.entity.UploadFileContext;
 import com.chineseall.entity.UploadFileInfo;
 import com.chineseall.entity.UploadPngTifInfo;
 import org.springframework.stereotype.Repository;
@@ -23,4 +24,6 @@ public interface FileUploadServiceDao {
     UploadPngTifInfo getTifFilePathByTimeStamp(String timeStamp);
 
     Integer updateBoxInfo(HashMap hashMap);
+
+    Integer updateImageInfo(UploadFileContext info);
 }

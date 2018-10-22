@@ -13,10 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author gy1zc3@gmail.com
@@ -30,13 +27,15 @@ public class ImageUtils {
     /**
      * 使用 BufferedImage 获取图片大小
      *
-     * @param src
+     * @param src filepath
      */
+    @SuppressWarnings("unused")
     public static Map<String, Object> getImageSizeByBufferedImage(String src) {
         long beginTime = System.currentTimeMillis();
         Map<String, Object> imageInfoMap = new HashMap<>(1);
         File file = new File(src);
-        FileInputStream is = null;
+        FileInputStream is;
+        is = null;
         try {
             is = new FileInputStream(file);
         } catch (FileNotFoundException e2) {
@@ -44,6 +43,7 @@ public class ImageUtils {
         }
         BufferedImage sourceImg;
         try {
+            assert is != null;
             sourceImg = ImageIO.read(is);
             imageInfoMap.put("IMAGE_SIZE", file.length());
             imageInfoMap.put("IMAGE_WIDTH", sourceImg.getWidth());
@@ -61,6 +61,7 @@ public class ImageUtils {
      *
      * @param src 源图片路径
      */
+    @SuppressWarnings("unused")
     public static Map<String, Object> getImageSizeByImageReader(String src) {
         long beginTime = System.currentTimeMillis();
         Map<String, Object> imageInfoMap = new HashMap<>(1);
@@ -82,14 +83,9 @@ public class ImageUtils {
     }
 
     /**
-     * 等比例切割图片
-     *
-     * @param page
-     * @param column
-     * @param xAxes
-     * @param imagePath
-     * @return
+     * cut image in average
      */
+    @SuppressWarnings("unused")
     public static ArrayList<BufferedImage> cutImage(int page, int column, int[] xAxes, String imagePath) {
 
         ArrayList<BufferedImage> images = new ArrayList<>();
@@ -109,7 +105,32 @@ public class ImageUtils {
                 getBufferedImage(images, image, column / 2, xAxes[0], xAxes[1]);
                 getBufferedImage(images, image, column / 2, xAxes[2], xAxes[3]);
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
+
+        }
+        return images;
+    }
+
+    /**
+     * 根据坐标切图
+     */
+    public static ArrayList<BufferedImage> cutImage(String imagePath, ArrayList<LinkedHashMap<String, Integer>> ordinates) {
+        ArrayList<BufferedImage> images = new ArrayList<>();
+        if (StringUtils.isEmpty(imagePath)) {
+            return images;
+        }
+        try {
+            BufferedImage image = ImageIO.read(new File(imagePath));
+            for (LinkedHashMap<String, Integer> coordinate : ordinates) {
+                int xLeftTop = coordinate.get("x-left-top");
+                int yLeftTop = coordinate.get("y-left-top");
+                int xRightBottom = coordinate.get("x-right-bottom");
+                int yRightBottom = coordinate.get("y-right-bottom");
+                BufferedImage bufferedImage = image.getSubimage(xLeftTop, yLeftTop, xRightBottom - xLeftTop,
+                        yRightBottom - yLeftTop);
+                images.add(bufferedImage);
+            }
+        } catch (Exception ignored) {
 
         }
         return images;
@@ -117,11 +138,6 @@ public class ImageUtils {
 
     /**
      * 切割图片
-     *
-     * @param src
-     * @param rows
-     * @param cols
-     * @return
      */
     public static ArrayList<BufferedImage> cutImage(String src, int rows, int cols, int xIndex, int yIndex,
                                                     int gapStart, int gapEnd, int rowsRight, int columnRight, int
@@ -133,9 +149,8 @@ public class ImageUtils {
             BigDecimal b1 = new BigDecimal(Double.toString(heigth));
             BigDecimal b2 = new BigDecimal(Double.toString(img.getHeight()));
             double rate = b1.divide(b2, 2).doubleValue();
-            /**
-             * if picture changed, fixed.
-             */
+
+            // if picture changed, fixed.
             if (rate != 1.0) {
                 img = resizeImage(img, rate * 100 / 100);
             }
@@ -145,16 +160,12 @@ public class ImageUtils {
                 BufferedImage leftImage = img.getSubimage(xIndex, yIndex, gapStart, (img.getHeight() - yIndex));
                 BufferedImage rightImage = img.getSubimage(gapEnd, yIndexRigth, (img.getWidth() - gapEnd), (img
                         .getHeight() - yIndexRigth));
-                /**
-                 * 左边
-                 */
+                // left side
                 {
                     ImageIO.write(leftImage, "png", new File("/Users/zacky/Desktop/leftImage.png"));
                     getBufferedImage(list, leftImage, rows, cols, xIndex, yIndex);
                 }
-                /**
-                 * 右边
-                 */
+                // right side
                 {
                     ImageIO.write(rightImage, "png", new File("/Users/zacky/Desktop/rightImage.png"));
                     getBufferedImage(list, rightImage, rowsRight, columnRight, 0, yIndexRigth);
@@ -167,14 +178,14 @@ public class ImageUtils {
         return list;
     }
 
-    private static ArrayList<BufferedImage> getBufferedImage(ArrayList<BufferedImage> images, BufferedImage image, int column, int startY, int endY) {
+    @SuppressWarnings("unused")
+    private static void getBufferedImage(ArrayList<BufferedImage> images, BufferedImage image, int column, int startY, int endY) {
         int imageHeigth = image.getHeight();
         int lw = (endY - startY) / column;
         for (int i = 0; i < column; i++) {
             BufferedImage bufferedImage = image.getSubimage(startY + (i * lw), 0, lw, imageHeigth);
             images.add(bufferedImage);
         }
-        return images;
     }
 
     private static ArrayList<BufferedImage> getBufferedImage(ArrayList<BufferedImage> list, BufferedImage img, int
@@ -193,9 +204,8 @@ public class ImageUtils {
      *
      * @param originalImage 原始图片
      * @param times         放大倍数
-     * @return
      */
-    public static BufferedImage resizeImage(BufferedImage originalImage, double times) {
+    private static BufferedImage resizeImage(BufferedImage originalImage, double times) {
         int width = (int) (originalImage.getWidth() * times);
         int height = (int) (originalImage.getHeight() * times);
 

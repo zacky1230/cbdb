@@ -1,5 +1,6 @@
 package com.chineseall.service;
 
+import com.chineseall.entity.UploadFileContext;
 import com.chineseall.util.RetMsg;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,4 +19,6 @@ public interface OcrHandleService {
     RetMsg getHandlerImage(String imageId);
 
     RetMsg imageUpload(MultipartFile file, String type, String page);
+
+    RetMsg saveImageInfo(String imageId, UploadFileContext info);
 }

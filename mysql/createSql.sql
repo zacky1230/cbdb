@@ -1,10 +1,13 @@
 CREATE DATABASE IF NOT EXISTS OCR DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 USE OCR;
 CREATE TABLE IF NOT EXISTS ocr_upload_file_context(
-  id         INT                                 NOT NULL
+(
+  id         INT AUTO_INCREMENT                                NOT NULL
     PRIMARY KEY,
-  fileId     INT                                 NULL
-  COMMENT '上传文件ID',
+  fileId     VARCHAR(64)                         NULL
+  COMMENT '文件Id',
+  coordinate TEXT                                NULL
+  COMMENT '图片坐标',
   context    TEXT                                NULL
   COMMENT '文件中内容',
   createTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -14,6 +17,8 @@ CREATE TABLE IF NOT EXISTS ocr_upload_file_info(
     PRIMARY KEY,
   fileName       VARCHAR(128) DEFAULT ''             NOT NULL
   COMMENT '上传文件名称',
+  fileId        VARCHAR(64)  DEFAULT ''             NOT NULL
+  COMMENT '图片唯一标识Id',
   fileUploadPath VARCHAR(256) DEFAULT ''             NOT NULL
   COMMENT '上传文件路劲',
   fileSize       INT                                 NOT NULL
@@ -52,4 +57,4 @@ CREATE TABLE IF NOT EXISTS ocr_upload_png_tiff_info(
   COMMENT '修改时间',
   deleted         INT DEFAULT '0'                     NULL
   COMMENT '删除状态(0:未删除,1:删除)'
-);ci
+);

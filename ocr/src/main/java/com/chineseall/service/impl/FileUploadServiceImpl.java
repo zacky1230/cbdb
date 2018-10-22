@@ -76,9 +76,11 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         String suffix = fileName.split("\\.")[1];
 
-        String saveFileName = GenUuid.getUUID32() + "." + suffix;
+        String uuid = GenUuid.getUUID32();
 
-        if (saveFile(file, saveFileName, todayString, fileName)) {
+        String saveFileName = uuid + "." + suffix;
+
+        if (saveFile(file, saveFileName, todayString, fileName, uuid)) {
             String filePath = fileUploadPath + File.separator + todayString + File.separator + saveFileName;
             return ResultUtil.success("upload success", filePath);
         } else {
@@ -99,9 +101,10 @@ public class FileUploadServiceImpl implements FileUploadService {
 
             String suffix = fileName.split("\\.")[1];
 
-            String saveFileName = GenUuid.getUUID32() + "." + suffix;
+            String uuid = GenUuid.getUUID32();
+            String saveFileName = uuid + "." + suffix;
 
-            if (saveFile(file, saveFileName, todayString, fileName)) {
+            if (saveFile(file, saveFileName, todayString, fileName, uuid)) {
                 pathList.add(saveFileName);
             }
         }
@@ -168,7 +171,7 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     private boolean saveImage(MultipartFile file, String saveFileName, String todayString, String fileName, String
             imageId, String filePath) {
-        return saveFile(file, saveFileName, todayString, fileName) && setValueToRedis(imageId, filePath);
+        return saveFile(file, saveFileName, todayString, fileName, imageId) && setValueToRedis(imageId, filePath);
     }
 
     private boolean setValueToRedis(String key, String value) {
@@ -206,7 +209,8 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
 
-    public boolean saveFile(MultipartFile file, String saveFileName, String todayString, String fileName) {
+    public boolean saveFile(MultipartFile file, String saveFileName, String todayString, String fileName, String
+            fileId) {
         if (file.isEmpty()) {
             return false;
         }
@@ -229,6 +233,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             uploadFileInfo.setFileSaveName(saveFileName);
             uploadFileInfo.setFileUploadPath(dest.getPath());
             uploadFileInfo.setFileSize(size);
+            uploadFileInfo.setFileId(fileId);
             fileUploadServiceDao.insert(uploadFileInfo);
             return true;
         } catch (IllegalStateException e) {

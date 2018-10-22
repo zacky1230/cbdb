@@ -21,6 +21,11 @@ public enum MessageCode {
     ImageLoadSuccess("图片加载成功！", 1003),
 
     /**
+     * image info save success code 1004
+     */
+    ImageInfoSaveSuccess("图片内容保存成功！", 1004),
+
+    /**
      * image upload fail code 3001
      */
     ImageUploadFail("图片上传失败！", 3001),
@@ -43,7 +48,17 @@ public enum MessageCode {
     /**
      * image recognition fail code 3005
      */
-    ImageRecognitionFail("图片识别失败！", 3005);
+    ImageRecognitionFail("图片识别失败！", 3005),
+
+    /**
+     * image info save fail code 3006
+     */
+    ImageInfoSaveFail("图片信息保存失败！", 3006),
+
+    /**
+     * param is error fail code 3007
+     */
+    ParamIsError("参数有误！", 3007);
 
 
     private String description;

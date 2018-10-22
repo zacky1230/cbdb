@@ -1,6 +1,8 @@
 package com.chineseall.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.chineseall.dao.FileUploadServiceDao;
+import com.chineseall.entity.UploadFileContext;
 import com.chineseall.service.FileUploadService;
 import com.chineseall.service.OcrHandleService;
 import com.chineseall.util.*;
@@ -31,7 +33,10 @@ public class OcrHandleServiceImpl implements OcrHandleService {
     private Logger logger = LoggerFactory.getLogger(OcrHandleServiceImpl.class);
 
     @Autowired
-    protected FileUploadService fileUploadService;
+    private FileUploadService fileUploadService;
+
+    @Autowired
+    private FileUploadServiceDao fileUploadServiceDao;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -47,16 +52,18 @@ public class OcrHandleServiceImpl implements OcrHandleService {
 
     @Override
     public RetMsg ocrImageHandle(Map<String, Object> map) {
-        RetMsg retMsg = new RetMsg();
+        RetMsg<JSONObject> retMsg = new RetMsg<>();
         String realPath = (String) map.get("filePath");
         String page = (String) map.get("page");
         String resultImgPath = picture2Binary(realPath);
-        int xAxes[] = detectLines(resultImgPath, page, detectVerticalLine);
-        int yAxes[] = detectLines(resultImgPath, page, detectHorizonLine);
+        int[] xAxes = detectLines(resultImgPath, page, detectVerticalLine);
+        int[] yAxes = detectLines(resultImgPath, page, detectHorizonLine);
         JSONObject json = new JSONObject();
+        String imageId = (String) map.get("imageId");
         json.put("xAxes", xAxes);
         json.put("yAxes", yAxes);
-        json.put("imageId", map.get("imageId"));
+        json.put("imageId", imageId);
+        json.put("imageInfo", getHandlerImage(imageId));
         retMsg.setMsg(MessageCode.ImageUploadSuccess.getDescription());
         retMsg.setCode(MessageCode.ImageUploadSuccess.getCode());
         retMsg.setData(json);
@@ -65,7 +72,7 @@ public class OcrHandleServiceImpl implements OcrHandleService {
 
     @Override
     public RetMsg imageRecognition(Map<String, Object> map) {
-        RetMsg retMsg = new RetMsg();
+        RetMsg<StringBuilder> retMsg = new RetMsg<>();
         String imageId = (String) map.get("imageId");
         if (StringUtils.isEmpty(imageId)) {
             retMsg.setMsg(MessageCode.ImageNotFound.getDescription());
@@ -74,8 +81,9 @@ public class OcrHandleServiceImpl implements OcrHandleService {
         }
         String imagePath = redisTemplate.opsForValue().get(imageId);
 
-        // cut image in proportion
-        ArrayList<BufferedImage> images = cutImageInProportion(map, imagePath);
+        // cut image by ordinates
+        ArrayList ordinates = (ArrayList) map.get("ordinates");
+        ArrayList<BufferedImage> images = ImageUtils.cutImage(imagePath, ordinates);
 
         StringBuilder sb;
         if (images != null && images.size() > 0) {
@@ -144,7 +152,7 @@ public class OcrHandleServiceImpl implements OcrHandleService {
     @Override
     public RetMsg imageUpload(MultipartFile file, String type, String page) {
         RetMsg retMsg = new RetMsg();
-        if (!file.getContentType().contains("image")) {
+        if (file.getContentType() != null && !file.getContentType().contains("image")) {
             retMsg.setCode(MessageCode.ImageFormatError.getCode());
             retMsg.setMsg(MessageCode.ImageFormatError.getDescription());
             return retMsg;
@@ -161,16 +169,21 @@ public class OcrHandleServiceImpl implements OcrHandleService {
         return retMsg;
     }
 
-    private ArrayList<BufferedImage> cutImageInProportion(Map<String, Object> map, String imagePath) {
-        int page = (Integer) map.get("page");
-        int column = (Integer) map.get("column");
-        ArrayList<Integer> xAxes = (ArrayList<Integer>) map.get("xAxes");
-        int[] xAxesArr = new int[xAxes.size()];
-        for (int i = 0; i < xAxes.size(); i++) {
-            xAxesArr[i] = xAxes.get(i);
+    @Override
+    public RetMsg saveImageInfo(String imageId, UploadFileContext info) {
+        RetMsg retMsg = new RetMsg();
+        info.setFileId(imageId);
+        int result = fileUploadServiceDao.updateImageInfo(info);
+        if (result > 0) {
+            retMsg.setCode(MessageCode.ImageInfoSaveSuccess.getCode());
+            retMsg.setMsg(MessageCode.ImageInfoSaveSuccess.getDescription());
+        } else {
+            retMsg.setCode(MessageCode.ImageInfoSaveFail.getCode());
+            retMsg.setMsg(MessageCode.ImageNotFound.getDescription());
         }
-        return ImageUtils.cutImage(page, column, xAxesArr, imagePath);
+        return retMsg;
     }
+
 
     private int[] detectLines(String resultImgPath, String page, String url) {
         int[] axes = {};

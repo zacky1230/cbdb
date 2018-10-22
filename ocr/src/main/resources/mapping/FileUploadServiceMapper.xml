@@ -23,4 +23,8 @@
         UPDATE ocr_upload_png_tiff_info set boxName = #{boxName,jdbcType=VARCHAR},updateTime = now() WHERE timeStamp =
         #{timeStamp,jdbcType=VARCHAR}
     </update>
+    <insert id="updateImageInfo" parameterType="com.chineseall.entity.UploadFileContext">
+        INSERT INTO ocr_upload_file_context (fileId,context,coordinate) VALUES
+        (#{fileId,jdbcType=VARCHAR},#{context,jdbcType=VARCHAR},#{coordinate,jdbcType=VARCHAR})
+    </insert>
 </mapper>

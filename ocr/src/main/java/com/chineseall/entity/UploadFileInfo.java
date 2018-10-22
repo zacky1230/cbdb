@@ -11,6 +11,7 @@ import java.util.Date;
 public class UploadFileInfo implements Serializable {
     Integer id;
     String fileName;
+    String fileId;
     String fileUploadPath;
     Integer fileSize;
     String fileSaveName;
@@ -24,6 +25,14 @@ public class UploadFileInfo implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
     }
 
     public String getFileName() {
