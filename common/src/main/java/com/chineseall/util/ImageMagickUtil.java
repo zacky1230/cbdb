@@ -16,7 +16,7 @@ public class ImageMagickUtil {
     private static Logger logger = LoggerFactory.getLogger(ImageMagickUtil.class);
 
     public static void main(String[] args) throws InterruptedException, IOException, IM4JavaException {
-        pngToTif("/Users/zacky/Desktop/dian.png", "/Users/zacky/Desktop/dian2.png");
+        ImageMagickUtil.imageZoomInPng("/Volumes/Transcend/Work/upload/2018-10-23/1/8b9a5cceb8f04a9e930cd1bff02e4628.png", "/Volumes/Transcend/Work/upload/2018-10-23/1/_handle.png", 800);
     }
 
     /**
@@ -45,5 +45,19 @@ public class ImageMagickUtil {
         // execute the operation
         cmd.run(op);
         logger.info("pngToTif finished!");
+    }
+
+
+    public static void imageZoomInPng(String in, String out, int width) throws InterruptedException, IOException,
+            IM4JavaException {
+        logger.info(String.format("The image [%s] is converting!", in));
+        ConvertCmd cmd = new ConvertCmd();
+        IMOperation op = new IMOperation();
+        op.addImage(in);
+        op.compress("None");
+        op.resize(width);
+        op.addImage(out);
+        cmd.run(op);
+        logger.info(String.format("The image [%s] has converted!", out));
     }
 }

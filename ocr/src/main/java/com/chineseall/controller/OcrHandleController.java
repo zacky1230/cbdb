@@ -34,8 +34,9 @@ public class OcrHandleController {
     public ResponseEntity imageUpload(@RequestParam("imgName") MultipartFile file, HttpServletRequest request,
                                       @PathVariable String type) {
 
-        String page = request.getParameter("page");
-        RetMsg retMsg = ocrHandleService.imageUpload(file, type, page);
+        double width = Double.parseDouble(request.getParameter("width"));
+        double height = Double.parseDouble(request.getParameter("height"));
+        RetMsg retMsg = ocrHandleService.imageUpload(file, type, width, height);
         return ResponseEntity.ok(retMsg);
     }
 
@@ -85,4 +86,11 @@ public class OcrHandleController {
         return ResponseEntity.ok(retMsg);
     }
 
+
+    @RequestMapping(value = "/ocr/query/{id}")
+    @ResponseBody
+    public ResponseEntity queryImageInfo(@PathVariable int id) {
+        RetMsg retMsg = ocrHandleService.queryImageInfo(id);
+        return ResponseEntity.ok(retMsg);
+    }
 }

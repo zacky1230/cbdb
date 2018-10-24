@@ -1,5 +1,6 @@
 package com.chineseall.util;
 
+import com.chineseall.util.entity.ImageOrdinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author gy1zc3@gmail.com
@@ -114,18 +116,18 @@ public class ImageUtils {
     /**
      * 根据坐标切图
      */
-    public static ArrayList<BufferedImage> cutImage(String imagePath, ArrayList<LinkedHashMap<String, Integer>> ordinates) {
+    public static ArrayList<BufferedImage> cutImage(String imagePath, List<ImageOrdinate> ordinates) {
         ArrayList<BufferedImage> images = new ArrayList<>();
         if (StringUtils.isEmpty(imagePath)) {
             return images;
         }
         try {
             BufferedImage image = ImageIO.read(new File(imagePath));
-            for (LinkedHashMap<String, Integer> coordinate : ordinates) {
-                int xLeftTop = coordinate.get("x-left-top");
-                int yLeftTop = coordinate.get("y-left-top");
-                int xRightBottom = coordinate.get("x-right-bottom");
-                int yRightBottom = coordinate.get("y-right-bottom");
+            for (int i = 0; i < ordinates.size() - 1; i++) {
+                int xLeftTop = ordinates.get(i).getTopX();
+                int yLeftTop = ordinates.get(i).getTopY();
+                int xRightBottom = ordinates.get(i + 1).getBottomX();
+                int yRightBottom = ordinates.get(i + 1).getBottomY();
                 BufferedImage bufferedImage = image.getSubimage(xLeftTop, yLeftTop, xRightBottom - xLeftTop,
                         yRightBottom - yLeftTop);
                 images.add(bufferedImage);

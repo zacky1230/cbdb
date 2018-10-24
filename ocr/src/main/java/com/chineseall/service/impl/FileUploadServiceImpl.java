@@ -38,7 +38,7 @@ public class FileUploadServiceImpl implements FileUploadService {
 
 
     @Override
-    public Map<String, Object> saveOcrImage(MultipartFile file, String type) {
+    public Map<String, Object> saveOcrImage(MultipartFile file, String type, double width, double height) {
         Map<String, Object> retMap = new HashMap<>();
         String fileName = file.getOriginalFilename();
 
@@ -52,11 +52,12 @@ public class FileUploadServiceImpl implements FileUploadService {
             todayString = todayString + File.separator + "2";
         }
 
-        String filePath = fileUploadPath + File.separator + todayString + File.separator + saveFileName;
-        if (saveImage(file, saveFileName, todayString, fileName, uuid, filePath)) {
+        String fileDir = fileUploadPath + File.separator + todayString;
+        String handlePath = fileUploadPath + File.separator + todayString + File.separator + uuid + "_handle.png";
+        if (saveImage(file, saveFileName, fileName, uuid, fileDir, width, height)) {
             retMap.put("msg", MessageCode.ImageUploadSuccess.getDescription());
             retMap.put("code", MessageCode.ImageUploadSuccess.getCode());
-            retMap.put("filePath", filePath);
+            retMap.put("filePath", handlePath);
             retMap.put("imageId", uuid);
             return retMap;
         } else {
@@ -169,13 +170,64 @@ public class FileUploadServiceImpl implements FileUploadService {
         return null;
     }
 
-    private boolean saveImage(MultipartFile file, String saveFileName, String todayString, String fileName, String
-            imageId, String filePath) {
-        return saveFile(file, saveFileName, todayString, fileName, imageId) && setValueToRedis(imageId, filePath);
+    private boolean saveImage(MultipartFile file, String saveFileName, String fileName, String imageId, String fileDir,
+                              double width, double height) {
+        String originalPath = fileDir + File.separator + saveFileName;
+        String handlePath = fileDir + File.separator + imageId + "_handle.png";
+        return saveFile(file, saveFileName, fileName, imageId, width, originalPath, handlePath) && setValueToRedis
+                (imageId, handlePath);
+    }
+
+    private boolean saveFile(MultipartFile file, String saveFileName, String fileName, String imageId, double width,
+                             String originalPath, String handlePath) {
+        if (file.isEmpty()) {
+            return false;
+        }
+        int size = (int) file.getSize();
+
+        File dest = new File(originalPath);
+
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+
+        try {
+            file.transferTo(dest);
+
+            Integer imageWidth = Integer.parseInt(new java.text.DecimalFormat("0").format(width));
+
+            ImageMagickUtil.imageZoomInPng(originalPath, handlePath, imageWidth);
+
+            saveFileInfoToDB(fileName, saveFileName, handlePath, size, imageId);
+
+            return true;
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IM4JavaException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void saveFileInfoToDB(String fileName, String saveFileName, String fileUploadPath, int size, String imageId) {
+        UploadFileInfo uploadFileInfo = new UploadFileInfo();
+        uploadFileInfo.setFileName(fileName);
+        uploadFileInfo.setFileSaveName(saveFileName);
+        uploadFileInfo.setFileUploadPath(fileUploadPath);
+        uploadFileInfo.setFileSize(size);
+        uploadFileInfo.setFileId(imageId);
+        fileUploadServiceDao.insert(uploadFileInfo);
     }
 
     private boolean setValueToRedis(String key, String value) {
-        value = value.replace(key, key + "_result");
+        value = value.replace("handle", "handle_result");
         redisTemplate.opsForValue().set(key, value, 12, TimeUnit.HOURS);
         if (value.equals(redisTemplate.opsForValue().get(key))) {
             return true;
@@ -217,24 +269,14 @@ public class FileUploadServiceImpl implements FileUploadService {
         int size = (int) file.getSize();
 
         File dest = new File(fileUploadPath + File.separator + todayString + File.separator + saveFileName);
-        /**
-         *  判断文件父目录是否存在
-         */
+
         if (!dest.getParentFile().exists()) {
             dest.getParentFile().mkdirs();
         }
-        /**
-         * 保存文件
-         */
+
         try {
             file.transferTo(dest);
-            UploadFileInfo uploadFileInfo = new UploadFileInfo();
-            uploadFileInfo.setFileName(fileName);
-            uploadFileInfo.setFileSaveName(saveFileName);
-            uploadFileInfo.setFileUploadPath(dest.getPath());
-            uploadFileInfo.setFileSize(size);
-            uploadFileInfo.setFileId(fileId);
-            fileUploadServiceDao.insert(uploadFileInfo);
+            saveFileInfoToDB(fileName, saveFileName, dest.getPath(), size, fileId);
             return true;
         } catch (IllegalStateException e) {
             e.printStackTrace();

@@ -1,15 +1,14 @@
-CREATE DATABASE IF NOT EXISTS OCR DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
-USE OCR;
+CREATE DATABASE IF NOT EXISTS OCR_TEST DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+USE OCR_TEST;
 CREATE TABLE IF NOT EXISTS ocr_upload_file_context(
-(
   id         INT AUTO_INCREMENT                                NOT NULL
-    PRIMARY KEY,
+PRIMARY KEY,
   fileId     VARCHAR(64)                         NULL
-  COMMENT '文件Id',
+COMMENT '文件Id',
   coordinate TEXT                                NULL
-  COMMENT '图片坐标',
-  context    TEXT                                NULL
-  COMMENT '文件中内容',
+COMMENT '图片坐标',
+context    TEXT                                NULL
+COMMENT '文件中内容',
   createTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 CREATE TABLE IF NOT EXISTS ocr_upload_file_info(

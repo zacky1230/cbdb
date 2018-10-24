@@ -18,7 +18,9 @@ public interface OcrHandleService {
 
     RetMsg getHandlerImage(String imageId);
 
-    RetMsg imageUpload(MultipartFile file, String type, String page);
+    RetMsg imageUpload(MultipartFile file, String type, double width, double height);
 
     RetMsg saveImageInfo(String imageId, UploadFileContext info);
+
+    RetMsg queryImageInfo(int id);
 }

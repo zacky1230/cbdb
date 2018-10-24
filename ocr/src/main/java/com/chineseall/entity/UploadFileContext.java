@@ -9,9 +9,27 @@ import java.util.Date;
 public class UploadFileContext {
     Integer id;
     String fileId;
+    String filePath;
     String coordinate;
     String context;
     Date createTime;
+    String imageInfo;
+
+    public String getImageInfo() {
+        return imageInfo;
+    }
+
+    public void setImageInfo(String imageInfo) {
+        this.imageInfo = imageInfo;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 
     public Integer getId() {
         return id;

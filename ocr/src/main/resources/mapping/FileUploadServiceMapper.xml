@@ -2,8 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.chineseall.dao.FileUploadServiceDao">
     <insert id="insert" parameterType="com.chineseall.entity.UploadFileInfo">
-        INSERT INTO ocr_upload_file_info (fileName,fileUploadPath,fileSize,fileSaveName) VALUES
-        (#{fileName,jdbcType=VARCHAR},#{fileUploadPath,jdbcType=VARCHAR},#{fileSize,jdbcType=INTEGER},#{fileSaveName,jdbcType=VARCHAR})
+        INSERT INTO ocr_upload_file_info (fileName,fileUploadPath,fileSize,fileSaveName,fileId) VALUES
+        (#{fileName,jdbcType=VARCHAR},#{fileUploadPath,jdbcType=VARCHAR},#{fileSize,jdbcType=INTEGER},#{fileSaveName,
+        jdbcType=VARCHAR},#{fileId,jdbcType=VARCHAR})
     </insert>
     <insert id="add" parameterType="com.chineseall.entity.UploadPngTifInfo">
         INSERT INTO  ocr_upload_png_tiff_info(uploadDirectory, pngFileName, tifFileName, fontFamily, lang, timeStamp)
@@ -27,4 +28,9 @@
         INSERT INTO ocr_upload_file_context (fileId,context,coordinate) VALUES
         (#{fileId,jdbcType=VARCHAR},#{context,jdbcType=VARCHAR},#{coordinate,jdbcType=VARCHAR})
     </insert>
+    <select id="queryImageInfoById" parameterType="java.lang.Integer"
+            resultType="com.chineseall.entity.UploadFileContext">
+        select  a.context,b.fileUploadPath as filePath from ocr_upload_file_context a left join ocr_upload_file_info b
+        on a.fileId = b.fileId where b.id = #{id,jdbcType=INTEGER};
+    </select>
 </mapper>

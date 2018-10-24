@@ -12,15 +12,56 @@ import java.util.Map;
  * Created by zacky on 12:06.
  */
 public interface FileUploadService {
+    /**
+     * save single file
+     *
+     * @param file MultipartFile
+     * @return RetMsg
+     */
     RetMsg saveSingleFile(MultipartFile file);
 
+    /**
+     * save multi files
+     *
+     * @param files List
+     * @return RetMsg
+     */
     RetMsg saveMultiFile(List<MultipartFile> files);
 
+    /**
+     * get file real path by filename
+     *
+     * @param fileName String
+     * @return String
+     */
     String getRealFilePath(String fileName);
 
+    /**
+     * save tess training file
+     *
+     * @param file       file
+     * @param lang       training language
+     * @param fontFamily training fontFamily
+     * @return UploadPngTifInfo
+     */
     UploadPngTifInfo saveTrainTessFile(MultipartFile file, String lang, String fontFamily);
 
+    /**
+     * query file by timeStamp
+     *
+     * @param timeStamp timestamp
+     * @return String
+     */
     String getTifFilePathByTimeStamp(String timeStamp);
 
-    Map<String, Object> saveOcrImage(MultipartFile file, String type);
+    /**
+     * save image by ration
+     *
+     * @param file   file
+     * @param type   type
+     * @param width  width
+     * @param height height
+     * @return Map
+     */
+    Map<String, Object> saveOcrImage(MultipartFile file, String type, double width, double height);
 }
