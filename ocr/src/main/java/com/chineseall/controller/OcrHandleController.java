@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -91,6 +92,21 @@ public class OcrHandleController {
     @ResponseBody
     public ResponseEntity queryImageInfo(@PathVariable int id) {
         RetMsg retMsg = ocrHandleService.queryImageInfo(id);
+        return ResponseEntity.ok(retMsg);
+    }
+
+
+    @RequestMapping(value = "/ocr/demo")
+    @ResponseBody
+    public ResponseEntity demo(@RequestParam("imgName") MultipartFile file, HttpServletRequest request) {
+        String coordinates = request.getParameter("coordinate");
+        double width = Double.parseDouble(request.getParameter("width"));
+        double height = Double.parseDouble(request.getParameter("height"));
+        Map<String, Object> imageInfo = new HashMap<>();
+        imageInfo.put("coordinates", coordinates);
+        imageInfo.put("width", width);
+        imageInfo.put("height", height);
+        RetMsg retMsg = ocrHandleService.imageDemo(file, imageInfo);
         return ResponseEntity.ok(retMsg);
     }
 }

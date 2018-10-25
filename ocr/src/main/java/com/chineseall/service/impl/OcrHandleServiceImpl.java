@@ -1,5 +1,6 @@
 package com.chineseall.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.chineseall.config.WebSocketServer;
 import com.chineseall.dao.FileUploadServiceDao;
@@ -82,9 +83,36 @@ public class OcrHandleServiceImpl implements OcrHandleService {
         return retMsg;
     }
 
+    public RetMsg imageRecognitionDemo(Map<String, Object> imageInfo, String imagePath, String imageId) {
+        RetMsg<Map> retMsg = new RetMsg<>();
+        JSONArray imageOrdinate = JSONArray.parseArray(imageInfo.get("coordinates").toString());
+        List<ImageOrdinate> imageOrdinates = imageOrdinate.toJavaList(ImageOrdinate.class);
+        if (imageOrdinates == null || imageOrdinates.size() < 0) {
+            retMsg.setCode(MessageCode.ImageRecognitionFail.getCode());
+            retMsg.setMsg(MessageCode.ImageRecognitionFail.getDescription());
+            return retMsg;
+        }
+        imageOrdinates = imageOrdinates.stream().sorted(Comparator.comparing(ImageOrdinate::getTopX)).collect
+                (Collectors.toList());
+        ArrayList<BufferedImage> images = ImageUtils.cutImage(imagePath, imageOrdinates);
+        String context = getContext(images, imagePath);
+        if (StringUtils.isNotEmpty(context)) {
+            Map<String, String> map = new HashMap<>();
+            map.put("context", context);
+            map.put("imageId", imageId);
+            retMsg.setData(map);
+            retMsg.setCode(MessageCode.ImageRecognitionSuccess.getCode());
+            retMsg.setMsg(MessageCode.ImageRecognitionSuccess.getDescription());
+        } else {
+            retMsg.setCode(MessageCode.ImageRecognitionFail.getCode());
+            retMsg.setMsg(MessageCode.ImageRecognitionFail.getDescription());
+        }
+        return retMsg;
+    }
+
     @Override
     public RetMsg imageRecognition(Map<String, Object> map) {
-        RetMsg<StringBuilder> retMsg = new RetMsg<>();
+        RetMsg<String> retMsg = new RetMsg<>();
         String imageId = (String) map.get("imageId");
         if (StringUtils.isEmpty(imageId)) {
             retMsg.setCode(MessageCode.ImageFormatError.getCode());
@@ -113,10 +141,23 @@ public class OcrHandleServiceImpl implements OcrHandleService {
 
         ArrayList<BufferedImage> images = ImageUtils.cutImage(imagePath, imageOrdinates);
 
-        StringBuilder sb;
+        String context = getContext(images, imagePath);
+        if (StringUtils.isNotEmpty(context)) {
+            retMsg.setCode(MessageCode.ImageRecognitionSuccess.getCode());
+            retMsg.setMsg(MessageCode.ImageRecognitionSuccess.getDescription());
+            retMsg.setData(context);
+        } else {
+            retMsg.setCode(MessageCode.ImageRecognitionFail.getCode());
+            retMsg.setMsg(MessageCode.ImageRecognitionFail.getDescription());
+        }
+        return retMsg;
+    }
+
+    public String getContext(ArrayList<BufferedImage> images, String imagePath) {
+        StringBuilder sb = new StringBuilder();
         if (images != null && images.size() > 0) {
             Collections.reverse(images);
-            sb = new StringBuilder();
+
             String accessToken;
             Object accessTokenRedis = redisTemplate.opsForValue().get("ai_ocr_access_token");
             if (accessTokenRedis != null) {
@@ -127,6 +168,7 @@ public class OcrHandleServiceImpl implements OcrHandleService {
             }
             String fileName = FileUtil.getFileName(imagePath);
             String extension = FileUtil.getSuffix(fileName);
+            logger.info(String.format("Starting %s recognition.", imagePath));
             for (int i = 0; i < images.size(); i++) {
                 try {
                     Thread.sleep(500);
@@ -134,21 +176,20 @@ public class OcrHandleServiceImpl implements OcrHandleService {
                     e.printStackTrace();
                 }
                 String result = BaiduApiUtil.getBufferedImageContext(images.get(i), extension, accessToken);
+                try {
+                    WebSocketServer.sendInfo(result);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 if (i == images.size() - 1) {
                     sb.append(result);
                 } else {
                     sb.append(result).append("\r\n");
                 }
-
             }
-            retMsg.setCode(MessageCode.ImageRecognitionSuccess.getCode());
-            retMsg.setMsg(MessageCode.ImageRecognitionSuccess.getDescription());
-            retMsg.setData(sb);
-        } else {
-            retMsg.setCode(MessageCode.ImageRecognitionFail.getCode());
-            retMsg.setMsg(MessageCode.ImageRecognitionFail.getDescription());
+            logger.info(String.format("Ending %s recognition.", imagePath));
         }
-        return retMsg;
+        return sb.toString();
     }
 
     @Override
@@ -229,6 +270,27 @@ public class OcrHandleServiceImpl implements OcrHandleService {
         retMsg.setMsg(MessageCode.QuerySuccess.getDescription());
         uploadFileContext.setImageInfo(getImageBase64(uploadFileContext.getFilePath()));
         retMsg.setData(uploadFileContext);
+        return retMsg;
+    }
+
+    @Override
+    public RetMsg imageDemo(MultipartFile file, Map<String, Object> imageInfo) {
+        RetMsg retMsg = new RetMsg();
+        if (file.getContentType() != null && !file.getContentType().contains("image")) {
+            retMsg.setCode(MessageCode.ImageFormatError.getCode());
+            retMsg.setMsg(MessageCode.ImageFormatError.getDescription());
+            return retMsg;
+        }
+
+        Map<String, Object> map = fileUploadService.saveOcrImage(file, imageInfo);
+
+        if (MessageCode.ImageUploadFail.getCode() == (int) map.get("code")) {
+            retMsg.fail(MessageCode.ImageUploadFail.getDescription());
+        } else {
+            String imagePath = (String) map.get("filePath");
+            String imageId = (String) map.get("imageId");
+            retMsg = imageRecognitionDemo(imageInfo, imagePath, imageId);
+        }
         return retMsg;
     }
 

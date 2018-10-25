@@ -64,4 +64,13 @@ public interface FileUploadService {
      * @return Map
      */
     Map<String, Object> saveOcrImage(MultipartFile file, String type, double width, double height);
+
+    /**
+     * save image with condition
+     *
+     * @param file      file
+     * @param imageInfo imageInfo
+     * @return Map
+     */
+    Map<String, Object> saveOcrImage(MultipartFile file, Map<String, Object> imageInfo);
 }

@@ -68,6 +68,32 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
+    public Map<String, Object> saveOcrImage(MultipartFile file, Map<String, Object> imageInfo) {
+        Map<String, Object> retMap = new HashMap<>();
+        double width = (double) imageInfo.get("width");
+        double height = (double) imageInfo.get("height");
+        String fileName = file.getOriginalFilename();
+
+        String todayString = TimeUtil.getTodayToString() + File.separator + "demo";
+        String extension = fileName.split("\\.")[1];
+        String uuid = GenUuid.getUUID32();
+        String saveFileName = uuid + "." + extension;
+        String fileDir = fileUploadPath + File.separator + todayString;
+        if (saveImage(file, saveFileName, fileName, uuid, fileDir, width, height)) {
+            retMap.put("msg", MessageCode.ImageUploadSuccess.getDescription());
+            retMap.put("code", MessageCode.ImageUploadSuccess.getCode());
+            String handlePath = fileUploadPath + File.separator + todayString + File.separator + uuid + "_handle.png";
+            retMap.put("filePath", handlePath);
+            retMap.put("imageId", uuid);
+            return retMap;
+        } else {
+            retMap.put("msg", MessageCode.ImageUploadFail.getDescription());
+            retMap.put("code", MessageCode.ImageUploadFail.getCode());
+            return retMap;
+        }
+    }
+
+    @Override
     public RetMsg saveSingleFile(MultipartFile file) {
 
 

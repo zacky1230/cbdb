@@ -23,4 +23,6 @@ public interface OcrHandleService {
     RetMsg saveImageInfo(String imageId, UploadFileContext info);
 
     RetMsg queryImageInfo(int id);
+
+    RetMsg imageDemo(MultipartFile file, Map<String, Object> imageInfo);
 }

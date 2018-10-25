@@ -52,6 +52,8 @@ public class BaiduApiUtil {
             if (!jsonObject.toJSONString().contains("error_msg")) {
                 result = JSONObject.parseObject(JSONObject.parseArray(jsonObject.get("words_result").toString()).get(0).toString
                         ()).getString("words");
+            } else {
+                result = "";
             }
         } catch (Exception e) {
             e.printStackTrace();
