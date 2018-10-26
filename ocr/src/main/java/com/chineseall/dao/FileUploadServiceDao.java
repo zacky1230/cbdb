@@ -25,7 +25,11 @@ public interface FileUploadServiceDao {
 
     Integer updateBoxInfo(HashMap hashMap);
 
-    Integer updateImageInfo(UploadFileContext info);
+    Integer addImageInfo(UploadFileContext info);
 
     UploadFileContext queryImageInfoById(int id);
+
+    Integer isExistImageInfo(String imageId);
+
+    void updateImageInfo(UploadFileContext info);
 }

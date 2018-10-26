@@ -1,5 +1,6 @@
 package com.chineseall.util;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +13,8 @@ import java.net.URLEncoder;
  * Created by zacky on 17:07.
  */
 public class BaiduApiUtil {
-    private static final String clientId = "ZwYK2casgWk7x1y3KGqvZIhK";
-    private static final String clientSecret = "6BlZhBKEXdS6RyN5EiookGCF96UPo7zk";
+    private static final String clientId = "ZHpGY8jpxWTpm2otFfUFt3MZ";
+    private static final String clientSecret = "wNX22SqzECzzlDp20vVEmfmBEQbhbPbW";
 
     static Logger logger = LoggerFactory.getLogger(BaiduApiUtil.class);
 
@@ -50,8 +51,14 @@ public class BaiduApiUtil {
             result = HttpUtil.post(url, accessToken, params);
             jsonObject = JSONObject.parseObject(result);
             if (!jsonObject.toJSONString().contains("error_msg")) {
-                result = JSONObject.parseObject(JSONObject.parseArray(jsonObject.get("words_result").toString()).get(0).toString
-                        ()).getString("words");
+                JSONArray words_result = JSONObject.parseArray(jsonObject.get("words_result").toString());
+                StringBuffer s = new StringBuffer();
+                for (int i = 0; i < words_result.size(); i++) {
+                    s.append(JSONObject.parseObject(words_result.get(i).toString()).getString("words") + " ");
+                }
+                result = s.toString();
+                /*result = JSONObject.parseObject(JSONObject.parseArray(jsonObject.get("words_result").toString()).get(0).toString
+                        ()).getString("words");*/
             } else {
                 result = "";
             }

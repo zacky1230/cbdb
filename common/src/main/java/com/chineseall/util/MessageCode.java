@@ -31,6 +31,11 @@ public enum MessageCode {
     QuerySuccess("查询成功！", 1005),
 
     /**
+     * image info update success code 1006
+     */
+    ImageInfoUpdateSuccess("图片内容更新成功！", 1006),
+
+    /**
      * image upload fail code 3001
      */
     ImageUploadFail("图片上传失败！", 3001),

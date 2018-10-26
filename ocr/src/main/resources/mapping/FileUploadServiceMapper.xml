@@ -24,13 +24,20 @@
         UPDATE ocr_upload_png_tiff_info set boxName = #{boxName,jdbcType=VARCHAR},updateTime = now() WHERE timeStamp =
         #{timeStamp,jdbcType=VARCHAR}
     </update>
-    <insert id="updateImageInfo" parameterType="com.chineseall.entity.UploadFileContext">
+    <insert id="addImageInfo" parameterType="com.chineseall.entity.UploadFileContext">
         INSERT INTO ocr_upload_file_context (fileId,context,coordinate) VALUES
         (#{fileId,jdbcType=VARCHAR},#{context,jdbcType=VARCHAR},#{coordinate,jdbcType=VARCHAR})
     </insert>
     <select id="queryImageInfoById" parameterType="java.lang.Integer"
             resultType="com.chineseall.entity.UploadFileContext">
-        select  a.context,b.fileUploadPath as filePath from ocr_upload_file_context a left join ocr_upload_file_info b
-        on a.fileId = b.fileId where b.id = #{id,jdbcType=INTEGER};
+        SELECT  a.context,b.fileUploadPath as filePath FROM ocr_upload_file_context a LEFT JOIN ocr_upload_file_info b
+        ON a.fileId = b.fileId WHERE b.id = #{id,jdbcType=INTEGER};
     </select>
+    <select id="isExistImageInfo" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM  ocr_upload_file_context WHERE fileId = #{imageId,jdbcType=VARCHAR}
+    </select>
+    <update id="updateImageInfo" parameterType="com.chineseall.entity.UploadFileContext">
+        UPDATE ocr_upload_file_context SET context = #{context,jdbcType=VARCHAR},coordinate =
+        #{coordinate,jdbcType=VARCHAR},updateTime = SYSDATE() WHERE fileId = #{fileId,jdbcType=VARCHAR}
+    </update>
 </mapper>

@@ -251,13 +251,20 @@ public class OcrHandleServiceImpl implements OcrHandleService {
     public RetMsg saveImageInfo(String imageId, UploadFileContext info) {
         RetMsg retMsg = new RetMsg();
         info.setFileId(imageId);
-        int result = fileUploadServiceDao.updateImageInfo(info);
-        if (result > 0) {
-            retMsg.setCode(MessageCode.ImageInfoSaveSuccess.getCode());
-            retMsg.setMsg(MessageCode.ImageInfoSaveSuccess.getDescription());
+        int isExist = fileUploadServiceDao.isExistImageInfo(imageId);
+        if (isExist < 1) {
+            int result = fileUploadServiceDao.addImageInfo(info);
+            if (result > 0) {
+                retMsg.setCode(MessageCode.ImageInfoSaveSuccess.getCode());
+                retMsg.setMsg(MessageCode.ImageInfoSaveSuccess.getDescription());
+            } else {
+                retMsg.setCode(MessageCode.ImageInfoSaveFail.getCode());
+                retMsg.setMsg(MessageCode.ImageNotFound.getDescription());
+            }
         } else {
-            retMsg.setCode(MessageCode.ImageInfoSaveFail.getCode());
-            retMsg.setMsg(MessageCode.ImageNotFound.getDescription());
+            fileUploadServiceDao.updateImageInfo(info);
+            retMsg.setCode(MessageCode.ImageInfoUpdateSuccess.getCode());
+            retMsg.setMsg(MessageCode.ImageInfoUpdateSuccess.getDescription());
         }
         return retMsg;
     }

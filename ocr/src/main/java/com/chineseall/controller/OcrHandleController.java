@@ -1,6 +1,6 @@
 package com.chineseall.controller;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.chineseall.entity.UploadFileContext;
 import com.chineseall.service.OcrHandleService;
 import com.chineseall.util.MessageCode;
@@ -72,7 +72,7 @@ public class OcrHandleController {
         UploadFileContext info = new UploadFileContext();
         String context = (String) map.get("context");
         LinkedHashMap<String, Object> coordinates = (LinkedHashMap) map.get("coordinate");
-        String coordinate = JSON.toJSONString(coordinates);
+        String coordinate = JSONArray.toJSONString(coordinates);
         RetMsg retMsg = new RetMsg();
         if (StringUtils.isEmpty(context) || StringUtils.isEmpty(coordinate.toString()) || StringUtils.isEmpty(imageId)) {
             retMsg.setMsg(MessageCode.ParamIsError.getDescription());
@@ -95,7 +95,13 @@ public class OcrHandleController {
         return ResponseEntity.ok(retMsg);
     }
 
-
+    /**
+     * 测试版本
+     *
+     * @param file
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/ocr/demo")
     @ResponseBody
     public ResponseEntity demo(@RequestParam("imgName") MultipartFile file, HttpServletRequest request) {
